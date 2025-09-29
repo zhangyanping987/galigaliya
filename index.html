@@ -241,6 +241,7 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            -webkit-background-clip: text;
             animation: bounce 2s infinite, gradientShift 3s ease infinite;
             position: relative;
             z-index: 2;
@@ -277,6 +278,7 @@
             -webkit-background-clip: initial;
             -webkit-text-fill-color: initial;
             background: none;
+            background-clip: initial;
         }
 
         .animated-text::after {
@@ -286,6 +288,7 @@
             -webkit-background-clip: initial;
             -webkit-text-fill-color: initial;
             background: none;
+            background-clip: initial;
         }
 
         @keyframes sparkle {
@@ -333,6 +336,86 @@
                 transform: scale(1.5);
                 opacity: 0;
             }
+        }
+
+        /* 加载进度条样式 */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 50%, #fd79a8 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #ff6b6b;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .loading-text {
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .loading-progress {
+            width: 200px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .loading-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .loading-percentage {
+            color: #fff;
+            font-size: 14px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .loading-details {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        /* 图片懒加载样式 */
+        .gif-image.lazy {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .gif-image.loaded {
+            opacity: 1;
         }
 
         /* 手机适配 */
@@ -384,6 +467,17 @@
     </style>
 </head>
 <body>
+    <!-- 加载覆盖层 -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">正在加载哦，马上来啦...</div>
+        <div class="loading-progress">
+            <div id="progress-bar" class="loading-progress-bar"></div>
+        </div>
+        <div id="loading-percentage" class="loading-percentage">0%</div>
+        <div id="loading-details" class="loading-details">准备中...</div>
+    </div>
+
     <!-- 飘浮的可爱元素 -->
     <div class="floating-element">🍟</div>
     <div class="floating-element">🥤</div>
@@ -394,7 +488,7 @@
     <div id="food-effects-container"></div>
     
     <div class="gif-container main-gif">
-        <img src="罗小黑开心吃汉堡.gif" alt="罗小黑开心吃汉堡" class="gif-image" onclick="createClickEffect(event)">
+        <img data-src="罗小黑开心吃汉堡.gif" alt="罗小黑开心吃汉堡" class="gif-image lazy" onclick="createClickEffect(event)">
     </div>
     
     <div class="animated-text">
@@ -404,17 +498,144 @@
     <!-- 底部三个小GIF -->
     <div class="bottom-gifs-container">
         <div class="bottom-gif-item">
-            <img src="罗小黑开心摇头.gif" alt="罗小黑开心摇头" class="bottom-gif" onclick="createClickEffect(event)">
+            <img data-src="罗小黑开心摇头.gif" alt="罗小黑开心摇头" class="bottom-gif lazy" onclick="createClickEffect(event)">
         </div>
         <div class="bottom-gif-item">
-            <img src="罗小黑打喷嚏.gif" alt="罗小黑打喷嚏" class="bottom-gif" onclick="createClickEffect(event)">
+            <img data-src="罗小黑打喷嚏.gif" alt="罗小黑打喷嚏" class="bottom-gif lazy" onclick="createClickEffect(event)">
         </div>
         <div class="bottom-gif-item">
-            <img src="罗小黑打饱嗝.gif" alt="罗小黑打饱嗝" class="bottom-gif" onclick="createClickEffect(event)">
+            <img data-src="罗小黑打饱嗝.gif" alt="罗小黑打饱嗝" class="bottom-gif lazy" onclick="createClickEffect(event)">
         </div>
     </div>
 
     <script>
+        // 加载管理
+        class LoadingManager {
+            constructor() {
+                this.images = [];
+                this.loadedCount = 0;
+                this.totalImages = 0;
+                this.loadingOverlay = document.getElementById('loading-overlay');
+                this.progressBar = document.getElementById('progress-bar');
+                this.percentage = document.getElementById('loading-percentage');
+                this.details = document.getElementById('loading-details');
+                this.init();
+            }
+
+            init() {
+                // 收集所有需要加载的图片
+                this.collectImages();
+                this.totalImages = this.images.length;
+                
+                if (this.totalImages === 0) {
+                    this.hideLoading();
+                    return;
+                }
+
+                // 开始预加载图片
+                this.preloadImages();
+            }
+
+            collectImages() {
+                const lazyImages = document.querySelectorAll('img[data-src]');
+                this.images = Array.from(lazyImages);
+            }
+
+            preloadImages() {
+                this.images.forEach((img, index) => {
+                    const imageLoader = new Image();
+                    
+                    imageLoader.onload = () => {
+                        this.onImageLoad(img, index);
+                    };
+                    
+                    imageLoader.onerror = () => {
+                        this.onImageError(img, index);
+                    };
+                    
+                    // 开始加载图片
+                    imageLoader.src = img.dataset.src;
+                });
+            }
+
+            onImageLoad(img, index) {
+                this.loadedCount++;
+                
+                // 更新进度
+                const progress = (this.loadedCount / this.totalImages) * 100;
+                this.updateProgress(progress);
+                
+                // 设置图片源并显示
+                img.src = img.dataset.src;
+                img.classList.remove('lazy');
+                img.classList.add('loaded');
+                
+                // 更新加载详情
+                this.details.textContent = `已加载 ${this.loadedCount}/${this.totalImages} 张图片`;
+                
+                // 检查是否全部加载完成
+                if (this.loadedCount >= this.totalImages) {
+                    setTimeout(() => {
+                        this.hideLoading();
+                    }, 500);
+                }
+            }
+
+            onImageError(img, index) {
+                this.loadedCount++;
+                console.warn(`图片加载失败: ${img.dataset.src}`);
+                
+                // 即使失败也要更新进度
+                const progress = (this.loadedCount / this.totalImages) * 100;
+                this.updateProgress(progress);
+                
+                // 设置默认图片或隐藏
+                img.style.display = 'none';
+                
+                if (this.loadedCount >= this.totalImages) {
+                    setTimeout(() => {
+                        this.hideLoading();
+                    }, 500);
+                }
+            }
+
+            updateProgress(progress) {
+                this.progressBar.style.width = progress + '%';
+                this.percentage.textContent = Math.round(progress) + '%';
+            }
+
+            hideLoading() {
+                this.loadingOverlay.classList.add('hidden');
+                setTimeout(() => {
+                    this.loadingOverlay.style.display = 'none';
+                }, 500);
+            }
+        }
+
+        // 页面加载完成后初始化加载管理器
+        document.addEventListener('DOMContentLoaded', function() {
+            new LoadingManager();
+            // 预加载关键图片
+            preloadCriticalImages();
+        });
+
+        // 添加图片加载优化提示
+        function addLoadingOptimizations() {
+            // 为所有图片添加加载优化属性
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                // 添加解码提示
+                img.setAttribute('decoding', 'async');
+                // 添加加载优先级
+                if (img.classList.contains('gif-image')) {
+                    img.setAttribute('fetchpriority', 'high');
+                }
+            });
+        }
+
+        // 在DOM加载完成后应用优化
+        document.addEventListener('DOMContentLoaded', addLoadingOptimizations);
+
         // 点击GIF时创建特效
         function createClickEffect(event) {
             const clickEffect = document.createElement('div');
@@ -618,6 +839,18 @@
                 clickEffect.remove();
             }, 500);
         });
+
+        // 性能优化：图片预加载和缓存
+        function preloadCriticalImages() {
+            const criticalImages = [
+                '罗小黑开心吃汉堡.gif'
+            ];
+            
+            criticalImages.forEach(src => {
+                const img = new Image();
+                img.src = src;
+            });
+        }
 
         // 页面加载完成后的欢迎效果
         window.addEventListener('load', function() {
