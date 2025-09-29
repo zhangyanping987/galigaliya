@@ -24,59 +24,61 @@
             position: relative;
         }
 
-        /* 飘浮的可爱元素 */
-        .floating-element {
-            position: absolute;
-            font-size: 24px;
-            animation: float 4s ease-in-out infinite;
-            pointer-events: none;
+        /* 底部摇动元素容器 */
+        .bottom-floating-elements {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
             z-index: 1;
+            pointer-events: none;
+        }
+
+        /* 底部摇动元素 */
+        .bottom-floating-element {
+            font-size: 20px;
+            animation: bottomSway 3s ease-in-out infinite;
             opacity: 0.8;
         }
 
-        .floating-element:nth-child(1) {
-            top: 15%;
-            left: 10%;
-            animation-delay: 0s;
-        }
+        .bottom-floating-element:nth-child(1) { animation-delay: 0s; }
+        .bottom-floating-element:nth-child(2) { animation-delay: 0.3s; }
+        .bottom-floating-element:nth-child(3) { animation-delay: 0.6s; }
+        .bottom-floating-element:nth-child(4) { animation-delay: 0.9s; }
+        .bottom-floating-element:nth-child(5) { animation-delay: 1.2s; }
+        .bottom-floating-element:nth-child(6) { animation-delay: 1.5s; }
+        .bottom-floating-element:nth-child(7) { animation-delay: 1.8s; }
+        .bottom-floating-element:nth-child(8) { animation-delay: 2.1s; }
+        .bottom-floating-element:nth-child(9) { animation-delay: 2.4s; }
+        .bottom-floating-element:nth-child(10) { animation-delay: 2.7s; }
 
-        .floating-element:nth-child(2) {
-            top: 25%;
-            right: 15%;
-            animation-delay: 1s;
-        }
-
-        .floating-element:nth-child(3) {
-            bottom: 30%;
-            left: 15%;
-            animation-delay: 2s;
-        }
-
-        .floating-element:nth-child(4) {
-            bottom: 20%;
-            right: 10%;
-            animation-delay: 3s;
-        }
-
-        @keyframes float {
+        @keyframes bottomSway {
             0%, 100% {
-                transform: translateY(0px) rotate(0deg);
+                transform: translateX(0px) rotate(0deg);
             }
-            50% {
-                transform: translateY(-15px) rotate(5deg);
+            25% {
+                transform: translateX(-10px) rotate(-5deg);
+            }
+            75% {
+                transform: translateX(10px) rotate(5deg);
             }
         }
 
         /* 零食雪花式缓慢掉落 */
         .food-rain {
             position: absolute;
-            font-size: 24px;
+            font-size: 32px;
             pointer-events: auto;
             z-index: 10001;
-            animation: gentleFall 8s linear infinite;
+            animation: gentleFall 10s linear infinite;
             cursor: pointer;
             transition: all 0.2s ease;
             user-select: none;
+            padding: 8px;
+            margin: -8px;
         }
 
         .food-rain:hover {
@@ -102,13 +104,15 @@
         /* 零食流星式划过 */
         .food-meteor {
             position: absolute;
-            font-size: 20px;
+            font-size: 28px;
             pointer-events: auto;
             z-index: 10001;
-            animation: meteorTrail 6s linear infinite;
+            animation: meteorTrail 8s linear infinite;
             cursor: pointer;
             transition: all 0.2s ease;
             user-select: none;
+            padding: 8px;
+            margin: -8px;
         }
 
         .food-meteor:hover {
@@ -140,13 +144,15 @@
         /* 零食弹跳效果 */
         .bouncing-food {
             position: absolute;
-            font-size: 28px;
+            font-size: 36px;
             pointer-events: auto;
             z-index: 10001;
-            animation: bounceAround 4s ease-in-out infinite;
+            animation: bounceAround 5s ease-in-out infinite;
             cursor: pointer;
             transition: all 0.2s ease;
             user-select: none;
+            padding: 8px;
+            margin: -8px;
         }
 
         .bouncing-food:hover {
@@ -176,13 +182,15 @@
         /* 零食旋转效果 */
         .spinning-food {
             position: absolute;
-            font-size: 26px;
+            font-size: 34px;
             pointer-events: auto;
             z-index: 10001;
-            animation: spin 2s linear infinite;
+            animation: spin 2.5s linear infinite;
             cursor: pointer;
             transition: all 0.2s ease;
             user-select: none;
+            padding: 8px;
+            margin: -8px;
         }
 
         .spinning-food:hover {
@@ -206,13 +214,15 @@
         /* 零食摇摆效果 */
         .swaying-food {
             position: absolute;
-            font-size: 24px;
+            font-size: 32px;
             pointer-events: auto;
             z-index: 10001;
-            animation: sway 3s ease-in-out infinite;
+            animation: sway 3.5s ease-in-out infinite;
             cursor: pointer;
             transition: all 0.2s ease;
             user-select: none;
+            padding: 8px;
+            margin: -8px;
         }
 
         .swaying-food:hover {
@@ -528,7 +538,7 @@
         /* 游戏提示 */
         .game-hint {
             position: fixed;
-            top: 20px;
+            top: 80px;
             right: 20px;
             background: rgba(255, 255, 255, 0.9);
             padding: 10px 15px;
@@ -616,6 +626,41 @@
             pointer-events: auto;
         }
 
+        /* 积分按钮 */
+        .score-toggle-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(255, 107, 107, 0.3);
+            border-radius: 15px;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #ff6b6b;
+            cursor: pointer;
+            z-index: 10002;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .score-toggle-btn:hover {
+            background: rgba(255, 107, 107, 0.1);
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .score-toggle-btn:active {
+            transform: scale(0.95);
+        }
+
+        .score-toggle-btn.active {
+            background: rgba(255, 107, 107, 0.2);
+            border-color: rgba(255, 107, 107, 0.6);
+        }
+
         /* 分数增加动画 */
         .score-popup {
             position: absolute;
@@ -653,8 +698,8 @@
                 max-width: 90%;
             }
 
-            .floating-element {
-                font-size: 25px;
+            .bottom-floating-element {
+                font-size: 18px;
             }
 
             .bottom-gifs-container {
@@ -676,8 +721,8 @@
                 padding: 10px;
             }
 
-            .floating-element {
-                font-size: 20px;
+            .bottom-floating-element {
+                font-size: 16px;
             }
 
             .bottom-gifs-container {
@@ -715,14 +760,16 @@
         🎮 点击掉落的零食获得分数！
     </div>
 
+    <!-- 积分按钮 -->
+    <button id="score-toggle-btn" class="score-toggle-btn">
+        🎯 开启积分游戏
+    </button>
+
     <!-- 点击捕获层 -->
     <div id="click-capture-layer" class="click-capture-layer" style="display: none;"></div>
 
-    <!-- 飘浮的可爱元素 -->
-    <div class="floating-element">🍟</div>
-    <div class="floating-element">🥤</div>
-    <div class="floating-element">🍕</div>
-    <div class="floating-element">🍰</div>
+    <!-- 底部摇动元素 -->
+    <div id="bottom-floating-elements" class="bottom-floating-elements"></div>
     
     <!-- 动态零食特效容器 -->
     <div id="food-effects-container"></div>
@@ -848,6 +895,8 @@
                 this.loadingOverlay.classList.add('hidden');
                 // 隐藏游戏UI
                 hideGameUI();
+                // 显示积分按钮
+                showScoreToggleButton();
                 setTimeout(() => {
                     this.loadingOverlay.style.display = 'none';
                 }, 500);
@@ -856,11 +905,17 @@
 
         // 页面加载完成后初始化加载管理器
         document.addEventListener('DOMContentLoaded', function() {
+            // 创建底部摇动元素
+            createBottomFloatingElements();
+            
             // 立即启动掉落特效，让加载过程更有趣
             startFoodEffects();
             
             // 设置点击捕获层事件
             setupClickCaptureLayer();
+            
+            // 设置积分按钮事件
+            setupScoreToggleButton();
             
             new LoadingManager();
             // 预加载关键图片
@@ -880,11 +935,53 @@
             }
         }
 
+        // 设置积分按钮事件
+        function setupScoreToggleButton() {
+            const scoreToggleBtn = document.getElementById('score-toggle-btn');
+            if (scoreToggleBtn) {
+                scoreToggleBtn.addEventListener('click', function() {
+                    toggleScoreGame();
+                });
+            }
+        }
+
+        // 切换积分游戏状态
+        function toggleScoreGame() {
+            scoreGameActive = !scoreGameActive;
+            const scoreToggleBtn = document.getElementById('score-toggle-btn');
+            const gameScore = document.getElementById('game-score');
+            const gameHint = document.getElementById('game-hint');
+            
+            if (scoreGameActive) {
+                // 开启积分游戏
+                scoreToggleBtn.textContent = '🎯 关闭积分游戏';
+                scoreToggleBtn.classList.add('active');
+                if (gameScore) gameScore.style.display = 'block';
+                if (gameHint) gameHint.style.display = 'block';
+                
+                // 重置分数
+                gameScore = 0;
+                comboCount = 0;
+                updateScoreDisplay();
+                
+                console.log('积分游戏已开启');
+            } else {
+                // 关闭积分游戏
+                scoreToggleBtn.textContent = '🎯 开启积分游戏';
+                scoreToggleBtn.classList.remove('active');
+                if (gameScore) gameScore.style.display = 'none';
+                if (gameHint) gameHint.style.display = 'none';
+                
+                console.log('积分游戏已关闭');
+            }
+        }
+
         // 游戏状态管理
         let gameScore = 0;
         let comboCount = 0;
         let lastClickTime = 0;
         let gameStarted = false;
+        let scoreGameActive = false;
 
         // 启动所有零食特效
         function startFoodEffects() {
@@ -921,9 +1018,37 @@
             if (clickCaptureLayer) clickCaptureLayer.style.display = 'none';
         }
 
+        // 显示积分按钮
+        function showScoreToggleButton() {
+            const scoreToggleBtn = document.getElementById('score-toggle-btn');
+            if (scoreToggleBtn) {
+                scoreToggleBtn.style.display = 'block';
+            }
+        }
+
         // 处理食物点击
         function handleFoodClick(element, food) {
             if (!gameStarted) return;
+            
+            // 如果积分游戏未激活，只播放特效不计分
+            if (!scoreGameActive) {
+                createEnhancedClickEffect(element, food);
+                createRippleEffect(element);
+                createScreenShake();
+                playClickSound();
+                
+                // 移除元素
+                element.style.animation = 'none';
+                element.style.transform = 'scale(0)';
+                element.style.opacity = '0';
+                
+                setTimeout(() => {
+                    if (element.parentNode) {
+                        element.remove();
+                    }
+                }, 200);
+                return;
+            }
             
             const currentTime = Date.now();
             const timeDiff = currentTime - lastClickTime;
@@ -1130,28 +1255,20 @@
             }, 600);
         }
 
-        // 随机添加更多飘浮元素
-        function addRandomFloatingElement() {
+        // 创建底部摇动元素
+        function createBottomFloatingElements() {
             const emojis = ['🌟', '💫', '⭐', '🎊', '🎉', '💖', '💕', '🌈', '🦄', '🐱'];
-            const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+            const container = document.getElementById('bottom-floating-elements');
             
-            const element = document.createElement('div');
-            element.className = 'floating-element';
-            element.textContent = randomEmoji;
-            element.style.left = Math.random() * 100 + '%';
-            element.style.top = Math.random() * 100 + '%';
-            element.style.animationDelay = Math.random() * 6 + 's';
-            
-            document.body.appendChild(element);
-            
-            // 10秒后移除元素
-            setTimeout(() => {
-                element.remove();
-            }, 10000);
+            if (container) {
+                emojis.forEach(emoji => {
+                    const element = document.createElement('div');
+                    element.className = 'bottom-floating-element';
+                    element.textContent = emoji;
+                    container.appendChild(element);
+                });
+            }
         }
-
-        // 每5秒添加一个随机飘浮元素（减少频率）
-        setInterval(addRandomFloatingElement, 5000);
 
         // 雪花式缓慢掉落
         function createFoodRain() {
@@ -1165,15 +1282,15 @@
             // 随机水平位置
             rainElement.style.left = (Math.random() * 90 + 5) + '%';
             
-            // 缓慢匀速掉落，6-10秒
-            const speed = Math.random() * 4 + 6; // 6-10秒
+            // 缓慢匀速掉落，8-12秒
+            const speed = Math.random() * 4 + 8; // 8-12秒
             rainElement.style.animationDuration = speed + 's';
             
             // 随机延迟
             rainElement.style.animationDelay = Math.random() * 2 + 's';
             
             // 随机大小，增加层次感
-            const size = Math.random() * 8 + 20; // 20-28px
+            const size = Math.random() * 12 + 28; // 28-40px
             rainElement.style.fontSize = size + 'px';
             
             // 随机透明度
@@ -1207,15 +1324,15 @@
             meteorElement.style.left = (Math.random() * 30) + '%';
             meteorElement.style.top = '0px';
             
-            // 匀速划过，4-6秒
-            const speed = Math.random() * 2 + 4; // 4-6秒
+            // 匀速划过，6-8秒
+            const speed = Math.random() * 2 + 6; // 6-8秒
             meteorElement.style.animationDuration = speed + 's';
             
             // 随机延迟
             meteorElement.style.animationDelay = Math.random() * 1 + 's';
             
             // 随机大小
-            const size = Math.random() * 6 + 18; // 18-24px
+            const size = Math.random() * 8 + 24; // 24-32px
             meteorElement.style.fontSize = size + 'px';
             
             // 随机透明度
