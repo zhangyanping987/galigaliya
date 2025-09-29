@@ -345,8 +345,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, rgba(255, 234, 167, 0.95) 0%, rgba(250, 177, 160, 0.95) 50%, rgba(253, 121, 168, 0.95) 100%);
-            backdrop-filter: blur(2px);
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 50%, #fd79a8 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -615,9 +614,6 @@
 
         // 页面加载完成后初始化加载管理器
         document.addEventListener('DOMContentLoaded', function() {
-            // 立即启动掉落特效，不等待图片加载
-            startFoodEffects();
-            
             new LoadingManager();
             // 预加载关键图片
             preloadCriticalImages();
@@ -805,36 +801,28 @@
             }, 4000);
         }
 
-        // 启动所有零食特效
-        function startFoodEffects() {
-            // 定期创建各种零食特效
-            setInterval(createFoodRain, 1500);      // 每1.5秒雪花掉落
-            setInterval(createFoodMeteor, 2000);    // 每2秒流星划过
-            setInterval(createBouncingFood, 5000);  // 每5秒弹跳
-            setInterval(createSpinningFood, 6000);  // 每6秒旋转
-            setInterval(createSwayingFood, 7000);   // 每7秒摇摆
+        // 定期创建各种零食特效
+        setInterval(createFoodRain, 1500);      // 每1.5秒雪花掉落
+        setInterval(createFoodMeteor, 2000);    // 每2秒流星划过
+        setInterval(createBouncingFood, 5000);  // 每5秒弹跳
+        setInterval(createSpinningFood, 6000);  // 每6秒旋转
+        setInterval(createSwayingFood, 7000);   // 每7秒摇摆
 
-            // 额外的零食掉落效果
-            setInterval(() => {
-                // 同时创建2-3个雪花零食
-                for (let i = 0; i < Math.floor(Math.random() * 2) + 2; i++) {
-                    setTimeout(() => createFoodRain(), i * 500);
-                }
-            }, 4000); // 每4秒创建一批
+        // 额外的零食掉落效果
+        setInterval(() => {
+            // 同时创建2-3个雪花零食
+            for (let i = 0; i < Math.floor(Math.random() * 2) + 2; i++) {
+                setTimeout(() => createFoodRain(), i * 500);
+            }
+        }, 4000); // 每4秒创建一批
 
-            // 额外的流星效果
-            setInterval(() => {
-                // 同时创建1-2个流星
-                for (let i = 0; i < Math.floor(Math.random() * 2) + 1; i++) {
-                    setTimeout(() => createFoodMeteor(), i * 300);
-                }
-            }, 3500); // 每3.5秒创建一批
-
-            // 立即创建一些初始特效，让加载过程更有趣
-            setTimeout(() => createFoodRain(), 200);
-            setTimeout(() => createFoodMeteor(), 500);
-            setTimeout(() => createBouncingFood(), 800);
-        }
+        // 额外的流星效果
+        setInterval(() => {
+            // 同时创建1-2个流星
+            for (let i = 0; i < Math.floor(Math.random() * 2) + 1; i++) {
+                setTimeout(() => createFoodMeteor(), i * 300);
+            }
+        }, 3500); // 每3.5秒创建一批
 
         // 触摸设备支持
         document.addEventListener('touchstart', function(e) {
