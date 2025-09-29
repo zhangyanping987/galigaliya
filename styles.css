@@ -776,10 +776,188 @@ body {
     .gif-image {
         max-width: 90%;
     }
+    
+    /* 游戏计分框手机适配 */
+    .game-score {
+        top: 10px;
+        left: 10px;
+        padding: 10px 15px;
+        font-size: 12px;
+        max-width: calc(100vw - 20px);
+    }
+    
+    .score-title {
+        font-size: 12px;
+        margin-bottom: 3px;
+    }
+    
+    .score-value {
+        font-size: 18px;
+    }
+    
+    .score-combo {
+        font-size: 10px;
+        margin-top: 2px;
+    }
+    
+    /* 游戏提示手机适配 */
+    .game-hint {
+        top: 60px;
+        right: 10px;
+        left: 10px;
+        padding: 8px 12px;
+        font-size: 11px;
+        text-align: center;
+        max-width: calc(100vw - 20px);
+    }
+    
+    /* 积分按钮手机适配 */
+    .score-toggle-btn {
+        top: 10px;
+        right: 10px;
+        padding: 8px 12px;
+        font-size: 12px;
+        max-width: calc(100vw - 20px);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* 统计弹窗手机适配 */
+    .stats-modal-content {
+        width: 95vw;
+        max-width: 400px;
+        max-height: 80vh;
+        margin: 10px auto;
+        padding: 15px;
+        font-size: 14px;
+    }
+    
+    .stats-modal-content h3 {
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+    
+    .stats-modal-content p {
+        font-size: 14px;
+        margin: 3px 0;
+    }
+    
+    /* 食物统计项手机适配 */
+    .stats-modal-content .food-item {
+        padding: 8px;
+        margin-bottom: 8px;
+    }
+    
+    .stats-modal-content .food-item span {
+        font-size: 20px;
+    }
+    
+    .stats-modal-content .food-item div {
+        font-size: 12px;
+    }
+    
+    /* 关闭按钮手机适配 */
+    .stats-modal-content .close-btn {
+        top: 10px;
+        right: 10px;
+        width: 30px;
+        height: 30px;
+        font-size: 16px;
+    }
 
     .bottom-floating-element {
         font-size: 18px;
     }
+}
+
+/* 小屏幕手机适配 */
+@media (max-width: 480px) {
+    /* 游戏计分框小屏幕适配 */
+    .game-score {
+        top: 5px;
+        left: 5px;
+        padding: 8px 12px;
+        font-size: 11px;
+        max-width: calc(100vw - 10px);
+    }
+    
+    .score-title {
+        font-size: 11px;
+        margin-bottom: 2px;
+    }
+    
+    .score-value {
+        font-size: 16px;
+    }
+    
+    .score-combo {
+        font-size: 9px;
+        margin-top: 1px;
+    }
+    
+    /* 游戏提示小屏幕适配 */
+    .game-hint {
+        top: 50px;
+        right: 5px;
+        left: 5px;
+        padding: 6px 10px;
+        font-size: 10px;
+        max-width: calc(100vw - 10px);
+    }
+    
+    /* 积分按钮小屏幕适配 */
+    .score-toggle-btn {
+        top: 5px;
+        right: 5px;
+        padding: 6px 10px;
+        font-size: 11px;
+        max-width: calc(100vw - 10px);
+    }
+    
+    /* 统计弹窗小屏幕适配 */
+    .stats-modal-content {
+        width: 98vw;
+        max-width: 350px;
+        max-height: 85vh;
+        margin: 5px auto;
+        padding: 12px;
+        font-size: 13px;
+    }
+    
+    .stats-modal-content h3 {
+        font-size: 15px;
+        margin-bottom: 8px;
+    }
+    
+    .stats-modal-content p {
+        font-size: 13px;
+        margin: 2px 0;
+    }
+    
+    /* 食物统计项小屏幕适配 */
+    .stats-modal-content .food-item {
+        padding: 6px;
+        margin-bottom: 6px;
+    }
+    
+    .stats-modal-content .food-item span {
+        font-size: 18px;
+    }
+    
+    .stats-modal-content .food-item div {
+        font-size: 11px;
+    }
+    
+    /* 关闭按钮小屏幕适配 */
+    .stats-modal-content .close-btn {
+        top: 8px;
+        right: 8px;
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+    }
+}
 
     .bottom-gifs-container {
         gap: 15px;
