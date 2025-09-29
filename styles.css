@@ -582,7 +582,7 @@ body {
 /* 游戏提示 */
 .game-hint {
     position: fixed;
-    top: 100px;
+    top: 120px;
     right: 20px;
     background: rgba(255, 255, 255, 0.9);
     padding: 10px 15px;
@@ -802,7 +802,7 @@ body {
     
     /* 游戏提示手机适配 */
     .game-hint {
-        top: 80px;
+        top: 100px;
         right: 10px;
         left: 10px;
         padding: 8px 12px;
@@ -859,8 +859,9 @@ body {
     
     /* 关闭按钮手机适配 */
     .stats-modal-content .close-btn {
-        top: 10px;
-        right: 10px;
+        position: fixed;
+        top: 15px;
+        right: 15px;
         width: 30px;
         height: 30px;
         font-size: 16px;
@@ -898,7 +899,7 @@ body {
     
     /* 游戏提示小屏幕适配 */
     .game-hint {
-        top: 70px;
+        top: 90px;
         right: 5px;
         left: 5px;
         padding: 6px 10px;
@@ -951,8 +952,9 @@ body {
     
     /* 关闭按钮小屏幕适配 */
     .stats-modal-content .close-btn {
-        top: 8px;
-        right: 8px;
+        position: fixed;
+        top: 12px;
+        right: 12px;
         width: 28px;
         height: 28px;
         font-size: 14px;

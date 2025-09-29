@@ -416,9 +416,9 @@ function showFoodStatsModal() {
     const closeBtn = document.createElement('button');
     closeBtn.innerHTML = '✕';
     closeBtn.style.cssText = `
-        position: absolute;
-        top: 15px;
-        right: 15px;
+        position: fixed;
+        top: 20px;
+        right: 20px;
         background: rgba(255, 255, 255, 0.9);
         border: 2px solid rgba(255, 107, 107, 0.5);
         border-radius: 50%;
