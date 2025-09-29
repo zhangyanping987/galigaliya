@@ -272,10 +272,7 @@ function showScoreToggleButton() {
 function handleFoodClick(element, food) {
     if (!gameStarted) return;
     
-    // 第一步：统计食物被吃次数（无论是否计分）
-    recordFoodClick(food);
-    
-    // 如果积分游戏未激活，只播放特效不计分
+    // 如果积分游戏未激活，只播放特效不记录统计
     if (!scoreGameActive) {
         createEnhancedClickEffect(element, food);
         createRippleEffect(element);
@@ -294,6 +291,9 @@ function handleFoodClick(element, food) {
         }, 200);
         return;
     }
+    
+    // 第一步：统计食物被吃次数（仅在积分游戏激活时）
+    recordFoodClick(food);
     
     const currentTime = Date.now();
     const timeDiff = currentTime - lastClickTime;
