@@ -1005,6 +1005,8 @@
             if (clickCaptureLayer) clickCaptureLayer.style.display = 'block';
             
             gameStarted = true;
+            // 加载时自动激活积分游戏
+            scoreGameActive = true;
         }
 
         // 隐藏游戏UI
@@ -1016,6 +1018,9 @@
             if (gameScore) gameScore.style.display = 'none';
             if (gameHint) gameHint.style.display = 'none';
             if (clickCaptureLayer) clickCaptureLayer.style.display = 'none';
+            
+            // 加载完成后关闭积分游戏
+            scoreGameActive = false;
         }
 
         // 显示积分按钮
