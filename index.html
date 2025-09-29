@@ -70,9 +70,9 @@
         /* 零食雪花式缓慢掉落 */
         .food-rain {
             position: absolute;
-            font-size: 16px;
+            font-size: 24px;
             pointer-events: auto;
-            z-index: 10000;
+            z-index: 10001;
             animation: gentleFall 8s linear infinite;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -102,9 +102,9 @@
         /* 零食流星式划过 */
         .food-meteor {
             position: absolute;
-            font-size: 14px;
+            font-size: 20px;
             pointer-events: auto;
-            z-index: 10000;
+            z-index: 10001;
             animation: meteorTrail 6s linear infinite;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -140,9 +140,9 @@
         /* 零食弹跳效果 */
         .bouncing-food {
             position: absolute;
-            font-size: 22px;
+            font-size: 28px;
             pointer-events: auto;
-            z-index: 10000;
+            z-index: 10001;
             animation: bounceAround 4s ease-in-out infinite;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -176,9 +176,9 @@
         /* 零食旋转效果 */
         .spinning-food {
             position: absolute;
-            font-size: 20px;
+            font-size: 26px;
             pointer-events: auto;
-            z-index: 10000;
+            z-index: 10001;
             animation: spin 2s linear infinite;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -206,9 +206,9 @@
         /* 零食摇摆效果 */
         .swaying-food {
             position: absolute;
-            font-size: 18px;
+            font-size: 24px;
             pointer-events: auto;
-            z-index: 10000;
+            z-index: 10001;
             animation: sway 3s ease-in-out infinite;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -413,7 +413,7 @@
             align-items: center;
             z-index: 9999;
             transition: opacity 0.5s ease-out;
-            pointer-events: none; /* 允许点击穿透到下层 */
+            pointer-events: auto; /* 恢复正常的点击事件处理 */
         }
 
         .loading-overlay > * {
@@ -604,6 +604,18 @@
             }
         }
 
+        /* 点击捕获层 */
+        .click-capture-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            z-index: 10000;
+            pointer-events: auto;
+        }
+
         /* 分数增加动画 */
         .score-popup {
             position: absolute;
@@ -702,6 +714,9 @@
     <div id="game-hint" class="game-hint" style="display: none;">
         🎮 点击掉落的零食获得分数！
     </div>
+
+    <!-- 点击捕获层 -->
+    <div id="click-capture-layer" class="click-capture-layer" style="display: none;"></div>
 
     <!-- 飘浮的可爱元素 -->
     <div class="floating-element">🍟</div>
@@ -844,10 +859,26 @@
             // 立即启动掉落特效，让加载过程更有趣
             startFoodEffects();
             
+            // 设置点击捕获层事件
+            setupClickCaptureLayer();
+            
             new LoadingManager();
             // 预加载关键图片
             preloadCriticalImages();
         });
+
+        // 设置点击捕获层事件
+        function setupClickCaptureLayer() {
+            const clickCaptureLayer = document.getElementById('click-capture-layer');
+            if (clickCaptureLayer) {
+                clickCaptureLayer.addEventListener('click', function(e) {
+                    // 阻止点击事件传播到下层
+                    e.stopPropagation();
+                    e.preventDefault();
+                    console.log('点击被捕获层拦截，不会触发后面的图片点击');
+                });
+            }
+        }
 
         // 游戏状态管理
         let gameScore = 0;
@@ -870,9 +901,11 @@
         function showGameUI() {
             const gameScore = document.getElementById('game-score');
             const gameHint = document.getElementById('game-hint');
+            const clickCaptureLayer = document.getElementById('click-capture-layer');
             
             if (gameScore) gameScore.style.display = 'block';
             if (gameHint) gameHint.style.display = 'block';
+            if (clickCaptureLayer) clickCaptureLayer.style.display = 'block';
             
             gameStarted = true;
         }
@@ -881,9 +914,11 @@
         function hideGameUI() {
             const gameScore = document.getElementById('game-score');
             const gameHint = document.getElementById('game-hint');
+            const clickCaptureLayer = document.getElementById('click-capture-layer');
             
             if (gameScore) gameScore.style.display = 'none';
             if (gameHint) gameHint.style.display = 'none';
+            if (clickCaptureLayer) clickCaptureLayer.style.display = 'none';
         }
 
         // 处理食物点击
@@ -1138,7 +1173,7 @@
             rainElement.style.animationDelay = Math.random() * 2 + 's';
             
             // 随机大小，增加层次感
-            const size = Math.random() * 6 + 14; // 14-20px
+            const size = Math.random() * 8 + 20; // 20-28px
             rainElement.style.fontSize = size + 'px';
             
             // 随机透明度
@@ -1180,7 +1215,7 @@
             meteorElement.style.animationDelay = Math.random() * 1 + 's';
             
             // 随机大小
-            const size = Math.random() * 4 + 12; // 12-16px
+            const size = Math.random() * 6 + 18; // 18-24px
             meteorElement.style.fontSize = size + 'px';
             
             // 随机透明度
@@ -1283,27 +1318,25 @@
         }
 
         // 定期创建各种零食特效
-        setInterval(createFoodRain, 1500);      // 每1.5秒雪花掉落
-        setInterval(createFoodMeteor, 2000);    // 每2秒流星划过
-        setInterval(createBouncingFood, 5000);  // 每5秒弹跳
-        setInterval(createSpinningFood, 6000);  // 每6秒旋转
-        setInterval(createSwayingFood, 7000);   // 每7秒摇摆
+        setInterval(createFoodRain, 3000);      // 每3秒雪花掉落
+        setInterval(createFoodMeteor, 4000);    // 每4秒流星划过
+        setInterval(createBouncingFood, 8000);  // 每8秒弹跳
+        setInterval(createSpinningFood, 10000);  // 每10秒旋转
+        setInterval(createSwayingFood, 12000);   // 每12秒摇摆
 
         // 额外的零食掉落效果
         setInterval(() => {
-            // 同时创建2-3个雪花零食
-            for (let i = 0; i < Math.floor(Math.random() * 2) + 2; i++) {
-                setTimeout(() => createFoodRain(), i * 500);
+            // 同时创建1-2个雪花零食
+            for (let i = 0; i < Math.floor(Math.random() * 2) + 1; i++) {
+                setTimeout(() => createFoodRain(), i * 800);
             }
-        }, 4000); // 每4秒创建一批
+        }, 8000); // 每8秒创建一批
 
         // 额外的流星效果
         setInterval(() => {
-            // 同时创建1-2个流星
-            for (let i = 0; i < Math.floor(Math.random() * 2) + 1; i++) {
-                setTimeout(() => createFoodMeteor(), i * 300);
-            }
-        }, 3500); // 每3.5秒创建一批
+            // 同时创建1个流星
+            setTimeout(() => createFoodMeteor(), 0);
+        }, 10000); // 每10秒创建一批
 
         // 触摸设备支持
         document.addEventListener('touchstart', function(e) {
