@@ -419,6 +419,121 @@
             opacity: 1;
         }
 
+        /* 游戏计分系统 */
+        .game-score {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 10001;
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            color: #333;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 107, 107, 0.3);
+        }
+
+        .score-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 24px;
+            color: #ff6b6b;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .score-combo {
+            font-size: 12px;
+            color: #4ecdc4;
+            margin-top: 3px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .score-combo.show {
+            opacity: 1;
+        }
+
+        /* 游戏提示 */
+        .game-hint {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 10001;
+            font-family: 'Arial', sans-serif;
+            font-size: 12px;
+            color: #666;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(78, 205, 196, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* 点击特效增强 */
+        .food-click-effect {
+            position: absolute;
+            font-size: 30px;
+            pointer-events: none;
+            z-index: 10002;
+            animation: clickBurst 0.6s ease-out forwards;
+        }
+
+        @keyframes clickBurst {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.5) rotate(180deg);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(2) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* 分数增加动画 */
+        .score-popup {
+            position: absolute;
+            font-size: 20px;
+            font-weight: bold;
+            color: #ff6b6b;
+            pointer-events: none;
+            z-index: 10003;
+            animation: scorePop 1s ease-out forwards;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes scorePop {
+            0% {
+                transform: translateY(0) scale(0.5);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(-20px) scale(1.2);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-40px) scale(1);
+                opacity: 0;
+            }
+        }
+
         /* 手机适配 */
         @media (max-width: 768px) {
             .animated-text {
@@ -477,6 +592,18 @@
         </div>
         <div id="loading-percentage" class="loading-percentage">0%</div>
         <div id="loading-details" class="loading-details">准备中...</div>
+    </div>
+
+    <!-- 游戏计分系统 -->
+    <div id="game-score" class="game-score" style="display: none;">
+        <div class="score-title">咖喱的零食收集</div>
+        <div id="score-value" class="score-value">0</div>
+        <div id="score-combo" class="score-combo">连击: 0</div>
+    </div>
+
+    <!-- 游戏提示 -->
+    <div id="game-hint" class="game-hint" style="display: none;">
+        🎮 点击掉落的零食获得分数！
     </div>
 
     <!-- 飘浮的可爱元素 -->
@@ -607,6 +734,8 @@
 
             hideLoading() {
                 this.loadingOverlay.classList.add('hidden');
+                // 隐藏游戏UI
+                hideGameUI();
                 setTimeout(() => {
                     this.loadingOverlay.style.display = 'none';
                 }, 500);
@@ -623,12 +752,146 @@
             preloadCriticalImages();
         });
 
+        // 游戏状态管理
+        let gameScore = 0;
+        let comboCount = 0;
+        let lastClickTime = 0;
+        let gameStarted = false;
+
         // 启动所有零食特效
         function startFoodEffects() {
             // 立即创建一些初始特效，让加载过程更有趣
             setTimeout(() => createFoodRain(), 200);
             setTimeout(() => createFoodMeteor(), 500);
             setTimeout(() => createBouncingFood(), 800);
+            
+            // 显示游戏UI
+            showGameUI();
+        }
+
+        // 显示游戏UI
+        function showGameUI() {
+            const gameScore = document.getElementById('game-score');
+            const gameHint = document.getElementById('game-hint');
+            
+            if (gameScore) gameScore.style.display = 'block';
+            if (gameHint) gameHint.style.display = 'block';
+            
+            gameStarted = true;
+        }
+
+        // 隐藏游戏UI
+        function hideGameUI() {
+            const gameScore = document.getElementById('game-score');
+            const gameHint = document.getElementById('game-hint');
+            
+            if (gameScore) gameScore.style.display = 'none';
+            if (gameHint) gameHint.style.display = 'none';
+        }
+
+        // 处理食物点击
+        function handleFoodClick(element, food) {
+            if (!gameStarted) return;
+            
+            const currentTime = Date.now();
+            const timeDiff = currentTime - lastClickTime;
+            
+            // 计算连击
+            if (timeDiff < 1000) { // 1秒内连续点击
+                comboCount++;
+            } else {
+                comboCount = 1;
+            }
+            
+            lastClickTime = currentTime;
+            
+            // 计算分数（基础分数 + 连击奖励）
+            const baseScore = getFoodScore(food);
+            const comboBonus = Math.min(comboCount - 1, 5) * 2; // 最多5连击奖励
+            const totalScore = baseScore + comboBonus;
+            
+            gameScore += totalScore;
+            
+            // 更新UI
+            updateScoreDisplay();
+            
+            // 创建点击特效
+            createClickEffect(element, food);
+            
+            // 创建分数弹出效果
+            createScorePopup(element, totalScore);
+            
+            // 移除元素
+            element.style.animation = 'none';
+            element.style.transform = 'scale(0)';
+            element.style.opacity = '0';
+            
+            setTimeout(() => {
+                if (element.parentNode) {
+                    element.remove();
+                }
+            }, 200);
+        }
+
+        // 获取食物分数
+        function getFoodScore(food) {
+            const scoreMap = {
+                '🍟': 10, '🍕': 15, '🍰': 20, '🍭': 8, '🍪': 12, '🍩': 18,
+                '🍫': 14, '🍬': 6, '🧁': 25, '🥨': 16, '🍯': 22, '🧀': 13,
+                '🥞': 11, '🍞': 9, '🥖': 7, '🥐': 8
+            };
+            return scoreMap[food] || 10;
+        }
+
+        // 更新分数显示
+        function updateScoreDisplay() {
+            const scoreValue = document.getElementById('score-value');
+            const scoreCombo = document.getElementById('score-combo');
+            
+            if (scoreValue) {
+                scoreValue.textContent = gameScore;
+            }
+            
+            if (scoreCombo) {
+                if (comboCount > 1) {
+                    scoreCombo.textContent = `连击: ${comboCount}`;
+                    scoreCombo.classList.add('show');
+                } else {
+                    scoreCombo.classList.remove('show');
+                }
+            }
+        }
+
+        // 创建点击特效
+        function createClickEffect(element, food) {
+            const rect = element.getBoundingClientRect();
+            const clickEffect = document.createElement('div');
+            clickEffect.className = 'food-click-effect';
+            clickEffect.textContent = '✨';
+            clickEffect.style.left = (rect.left + rect.width / 2) + 'px';
+            clickEffect.style.top = (rect.top + rect.height / 2) + 'px';
+            
+            document.body.appendChild(clickEffect);
+            
+            setTimeout(() => {
+                clickEffect.remove();
+            }, 600);
+        }
+
+        // 创建分数弹出效果
+        function createScorePopup(element, score) {
+            const rect = element.getBoundingClientRect();
+            const scorePopup = document.createElement('div');
+            scorePopup.className = 'score-popup';
+            scorePopup.textContent = `+${score}`;
+            scorePopup.style.left = (rect.left + rect.width / 2) + 'px';
+            scorePopup.style.top = (rect.top + rect.height / 2) + 'px';
+            
+            document.body.appendChild(scorePopup);
+            
+            setTimeout(() => {
+                scorePopup.remove();
+            }, 1000);
         }
 
         // 添加图片加载优化提示
@@ -715,10 +978,19 @@
             // 随机透明度
             rainElement.style.opacity = Math.random() * 0.4 + 0.6; // 0.6-1.0
             
+            // 添加点击事件
+            rainElement.style.cursor = 'pointer';
+            rainElement.addEventListener('click', function(e) {
+                e.stopPropagation();
+                handleFoodClick(rainElement, randomFood);
+            });
+            
             document.getElementById('food-effects-container').appendChild(rainElement);
             
             setTimeout(() => {
-                rainElement.remove();
+                if (rainElement.parentNode) {
+                    rainElement.remove();
+                }
             }, (speed + 1) * 1000);
         }
 
@@ -749,10 +1021,19 @@
             // 随机透明度
             meteorElement.style.opacity = Math.random() * 0.3 + 0.7; // 0.7-1.0
             
+            // 添加点击事件
+            meteorElement.style.cursor = 'pointer';
+            meteorElement.addEventListener('click', function(e) {
+                e.stopPropagation();
+                handleFoodClick(meteorElement, randomFood);
+            });
+            
             document.getElementById('food-effects-container').appendChild(meteorElement);
             
             setTimeout(() => {
-                meteorElement.remove();
+                if (meteorElement.parentNode) {
+                    meteorElement.remove();
+                }
             }, (speed + 1) * 1000);
         }
 
@@ -768,10 +1049,19 @@
             bounceElement.style.top = Math.random() * 60 + 20 + '%';
             bounceElement.style.animationDelay = Math.random() * 2 + 's';
             
+            // 添加点击事件
+            bounceElement.style.cursor = 'pointer';
+            bounceElement.addEventListener('click', function(e) {
+                e.stopPropagation();
+                handleFoodClick(bounceElement, randomFood);
+            });
+            
             document.getElementById('food-effects-container').appendChild(bounceElement);
             
             setTimeout(() => {
-                bounceElement.remove();
+                if (bounceElement.parentNode) {
+                    bounceElement.remove();
+                }
             }, 5000);
         }
 
@@ -787,10 +1077,19 @@
             spinElement.style.top = Math.random() * 60 + 20 + '%';
             spinElement.style.animationDelay = Math.random() * 1 + 's';
             
+            // 添加点击事件
+            spinElement.style.cursor = 'pointer';
+            spinElement.addEventListener('click', function(e) {
+                e.stopPropagation();
+                handleFoodClick(spinElement, randomFood);
+            });
+            
             document.getElementById('food-effects-container').appendChild(spinElement);
             
             setTimeout(() => {
-                spinElement.remove();
+                if (spinElement.parentNode) {
+                    spinElement.remove();
+                }
             }, 3000);
         }
 
@@ -806,10 +1105,19 @@
             swayElement.style.top = Math.random() * 60 + 20 + '%';
             swayElement.style.animationDelay = Math.random() * 2 + 's';
             
+            // 添加点击事件
+            swayElement.style.cursor = 'pointer';
+            swayElement.addEventListener('click', function(e) {
+                e.stopPropagation();
+                handleFoodClick(swayElement, randomFood);
+            });
+            
             document.getElementById('food-effects-container').appendChild(swayElement);
             
             setTimeout(() => {
-                swayElement.remove();
+                if (swayElement.parentNode) {
+                    swayElement.remove();
+                }
             }, 4000);
         }
 
