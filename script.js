@@ -431,7 +431,7 @@ function showFoodStatsModal() {
         align-items: center;
         justify-content: center;
         transition: all 0.3s ease;
-        z-index: 20001;
+        z-index: 30000;
     `;
     
     // 创建标题
@@ -533,11 +533,11 @@ function showFoodStatsModal() {
     }
     
     // 组装弹窗
-    modalContent.appendChild(closeBtn);
     modalContent.appendChild(title);
     modalContent.appendChild(totalStats);
     modalContent.appendChild(foodStatsList);
     modalOverlay.appendChild(modalContent);
+    modalOverlay.appendChild(closeBtn);  // 将关闭按钮添加到背景层，确保不被遮挡
     document.body.appendChild(modalOverlay);
     
     // 关闭按钮悬停效果
