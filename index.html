@@ -71,9 +71,21 @@
         .food-rain {
             position: absolute;
             font-size: 16px;
-            pointer-events: none;
+            pointer-events: auto;
             z-index: 10000;
             animation: gentleFall 8s linear infinite;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .food-rain:hover {
+            transform: scale(1.2);
+            filter: drop-shadow(0 0 8px rgba(255, 107, 107, 0.6));
+        }
+
+        .food-rain:active {
+            transform: scale(0.8);
         }
 
         @keyframes gentleFall {
@@ -91,9 +103,21 @@
         .food-meteor {
             position: absolute;
             font-size: 14px;
-            pointer-events: none;
+            pointer-events: auto;
             z-index: 10000;
             animation: meteorTrail 6s linear infinite;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .food-meteor:hover {
+            transform: scale(1.3);
+            filter: drop-shadow(0 0 6px rgba(78, 205, 196, 0.8));
+        }
+
+        .food-meteor:active {
+            transform: scale(0.7);
         }
 
         @keyframes meteorTrail {
@@ -117,9 +141,21 @@
         .bouncing-food {
             position: absolute;
             font-size: 22px;
-            pointer-events: none;
+            pointer-events: auto;
             z-index: 10000;
             animation: bounceAround 4s ease-in-out infinite;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .bouncing-food:hover {
+            transform: scale(1.4);
+            filter: drop-shadow(0 0 10px rgba(255, 159, 243, 0.7));
+        }
+
+        .bouncing-food:active {
+            transform: scale(0.6);
         }
 
         @keyframes bounceAround {
@@ -141,9 +177,21 @@
         .spinning-food {
             position: absolute;
             font-size: 20px;
-            pointer-events: none;
+            pointer-events: auto;
             z-index: 10000;
             animation: spin 2s linear infinite;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .spinning-food:hover {
+            transform: scale(1.3);
+            filter: drop-shadow(0 0 8px rgba(69, 183, 209, 0.8));
+        }
+
+        .spinning-food:active {
+            transform: scale(0.7);
         }
 
         @keyframes spin {
@@ -159,9 +207,21 @@
         .swaying-food {
             position: absolute;
             font-size: 18px;
-            pointer-events: none;
+            pointer-events: auto;
             z-index: 10000;
             animation: sway 3s ease-in-out infinite;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .swaying-food:hover {
+            transform: scale(1.3);
+            filter: drop-shadow(0 0 8px rgba(150, 206, 180, 0.8));
+        }
+
+        .swaying-food:active {
+            transform: scale(0.7);
         }
 
         @keyframes sway {
@@ -353,6 +413,11 @@
             align-items: center;
             z-index: 9999;
             transition: opacity 0.5s ease-out;
+            pointer-events: none; /* 允许点击穿透到下层 */
+        }
+
+        .loading-overlay > * {
+            pointer-events: auto; /* 加载内容可以点击 */
         }
 
         .loading-overlay.hidden {
@@ -503,6 +568,38 @@
             }
             100% {
                 transform: scale(2) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* 震动效果 */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+
+        .shake {
+            animation: shake 0.3s ease-in-out;
+        }
+
+        /* 点击波纹效果 */
+        .ripple-effect {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 107, 107, 0.3);
+            pointer-events: none;
+            z-index: 10001;
+            animation: ripple 0.6s ease-out forwards;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(4);
                 opacity: 0;
             }
         }
@@ -815,11 +912,20 @@
             // 更新UI
             updateScoreDisplay();
             
-            // 创建点击特效
-            createClickEffect(element, food);
+            // 创建增强的点击特效
+            createEnhancedClickEffect(element, food);
             
             // 创建分数弹出效果
             createScorePopup(element, totalScore);
+            
+            // 创建波纹效果
+            createRippleEffect(element);
+            
+            // 震动屏幕（轻微）
+            createScreenShake();
+            
+            // 播放点击音效（如果支持）
+            playClickSound();
             
             // 移除元素
             element.style.animation = 'none';
@@ -862,20 +968,80 @@
             }
         }
 
-        // 创建点击特效
-        function createClickEffect(element, food) {
+        // 创建增强的点击特效
+        function createEnhancedClickEffect(element, food) {
             const rect = element.getBoundingClientRect();
-            const clickEffect = document.createElement('div');
-            clickEffect.className = 'food-click-effect';
-            clickEffect.textContent = '✨';
-            clickEffect.style.left = (rect.left + rect.width / 2) + 'px';
-            clickEffect.style.top = (rect.top + rect.height / 2) + 'px';
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
             
-            document.body.appendChild(clickEffect);
+            // 创建多个星星特效
+            const effects = ['✨', '⭐', '💫', '🌟'];
+            for (let i = 0; i < 3; i++) {
+                const clickEffect = document.createElement('div');
+                clickEffect.className = 'food-click-effect';
+                clickEffect.textContent = effects[Math.floor(Math.random() * effects.length)];
+                clickEffect.style.left = (centerX + (Math.random() - 0.5) * 40) + 'px';
+                clickEffect.style.top = (centerY + (Math.random() - 0.5) * 40) + 'px';
+                clickEffect.style.animationDelay = (i * 0.1) + 's';
+                
+                document.body.appendChild(clickEffect);
+                
+                setTimeout(() => {
+                    clickEffect.remove();
+                }, 600);
+            }
+        }
+
+        // 创建波纹效果
+        function createRippleEffect(element) {
+            const rect = element.getBoundingClientRect();
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple-effect';
+            ripple.style.left = (rect.left + rect.width / 2) + 'px';
+            ripple.style.top = (rect.top + rect.height / 2) + 'px';
+            ripple.style.width = '20px';
+            ripple.style.height = '20px';
+            ripple.style.marginLeft = '-10px';
+            ripple.style.marginTop = '-10px';
+            
+            document.body.appendChild(ripple);
             
             setTimeout(() => {
-                clickEffect.remove();
+                ripple.remove();
             }, 600);
+        }
+
+        // 创建屏幕震动
+        function createScreenShake() {
+            document.body.classList.add('shake');
+            setTimeout(() => {
+                document.body.classList.remove('shake');
+            }, 300);
+        }
+
+        // 播放点击音效
+        function playClickSound() {
+            try {
+                // 创建简单的音效
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.1);
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            } catch (e) {
+                // 如果音频不支持，静默失败
+                console.log('音频播放不支持');
+            }
         }
 
         // 创建分数弹出效果
@@ -979,7 +1145,6 @@
             rainElement.style.opacity = Math.random() * 0.4 + 0.6; // 0.6-1.0
             
             // 添加点击事件
-            rainElement.style.cursor = 'pointer';
             rainElement.addEventListener('click', function(e) {
                 e.stopPropagation();
                 handleFoodClick(rainElement, randomFood);
@@ -1022,7 +1187,6 @@
             meteorElement.style.opacity = Math.random() * 0.3 + 0.7; // 0.7-1.0
             
             // 添加点击事件
-            meteorElement.style.cursor = 'pointer';
             meteorElement.addEventListener('click', function(e) {
                 e.stopPropagation();
                 handleFoodClick(meteorElement, randomFood);
@@ -1050,7 +1214,6 @@
             bounceElement.style.animationDelay = Math.random() * 2 + 's';
             
             // 添加点击事件
-            bounceElement.style.cursor = 'pointer';
             bounceElement.addEventListener('click', function(e) {
                 e.stopPropagation();
                 handleFoodClick(bounceElement, randomFood);
@@ -1078,7 +1241,6 @@
             spinElement.style.animationDelay = Math.random() * 1 + 's';
             
             // 添加点击事件
-            spinElement.style.cursor = 'pointer';
             spinElement.addEventListener('click', function(e) {
                 e.stopPropagation();
                 handleFoodClick(spinElement, randomFood);
@@ -1106,7 +1268,6 @@
             swayElement.style.animationDelay = Math.random() * 2 + 's';
             
             // 添加点击事件
-            swayElement.style.cursor = 'pointer';
             swayElement.addEventListener('click', function(e) {
                 e.stopPropagation();
                 handleFoodClick(swayElement, randomFood);
