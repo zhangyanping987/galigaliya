@@ -393,7 +393,7 @@ function showFoodStatsModal() {
         display: flex;
         justify-content: center;
         align-items: center;
-        z-index: 10000;
+        z-index: 20000;
         backdrop-filter: blur(5px);
     `;
     
@@ -419,17 +419,19 @@ function showFoodStatsModal() {
         position: absolute;
         top: 15px;
         right: 15px;
-        background: rgba(255, 255, 255, 0.3);
-        border: none;
+        background: rgba(255, 255, 255, 0.9);
+        border: 2px solid rgba(255, 107, 107, 0.5);
         border-radius: 50%;
-        width: 30px;
-        height: 30px;
+        width: 35px;
+        height: 35px;
         cursor: pointer;
-        font-size: 16px;
-        color: #333;
+        font-size: 18px;
+        color: #ff6b6b;
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: all 0.3s ease;
+        z-index: 20001;
     `;
     
     // 创建标题
@@ -537,6 +539,19 @@ function showFoodStatsModal() {
     modalContent.appendChild(foodStatsList);
     modalOverlay.appendChild(modalContent);
     document.body.appendChild(modalOverlay);
+    
+    // 关闭按钮悬停效果
+    closeBtn.addEventListener('mouseenter', () => {
+        closeBtn.style.background = 'rgba(255, 107, 107, 0.9)';
+        closeBtn.style.color = '#fff';
+        closeBtn.style.transform = 'scale(1.1)';
+    });
+    
+    closeBtn.addEventListener('mouseleave', () => {
+        closeBtn.style.background = 'rgba(255, 255, 255, 0.9)';
+        closeBtn.style.color = '#ff6b6b';
+        closeBtn.style.transform = 'scale(1)';
+    });
     
     // 关闭事件
     closeBtn.addEventListener('click', () => {

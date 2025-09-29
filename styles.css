@@ -582,7 +582,7 @@ body {
 /* 游戏提示 */
 .game-hint {
     position: fixed;
-    top: 80px;
+    top: 100px;
     right: 20px;
     background: rgba(255, 255, 255, 0.9);
     padding: 10px 15px;
@@ -802,7 +802,7 @@ body {
     
     /* 游戏提示手机适配 */
     .game-hint {
-        top: 60px;
+        top: 80px;
         right: 10px;
         left: 10px;
         padding: 8px 12px;
@@ -898,7 +898,7 @@ body {
     
     /* 游戏提示小屏幕适配 */
     .game-hint {
-        top: 50px;
+        top: 70px;
         right: 5px;
         left: 5px;
         padding: 6px 10px;
