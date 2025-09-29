@@ -72,7 +72,7 @@
             position: absolute;
             font-size: 16px;
             pointer-events: none;
-            z-index: 1;
+            z-index: 10000;
             animation: gentleFall 8s linear infinite;
         }
 
@@ -92,7 +92,7 @@
             position: absolute;
             font-size: 14px;
             pointer-events: none;
-            z-index: 1;
+            z-index: 10000;
             animation: meteorTrail 6s linear infinite;
         }
 
@@ -118,7 +118,7 @@
             position: absolute;
             font-size: 22px;
             pointer-events: none;
-            z-index: 1;
+            z-index: 10000;
             animation: bounceAround 4s ease-in-out infinite;
         }
 
@@ -142,7 +142,7 @@
             position: absolute;
             font-size: 20px;
             pointer-events: none;
-            z-index: 1;
+            z-index: 10000;
             animation: spin 2s linear infinite;
         }
 
@@ -160,7 +160,7 @@
             position: absolute;
             font-size: 18px;
             pointer-events: none;
-            z-index: 1;
+            z-index: 10000;
             animation: sway 3s ease-in-out infinite;
         }
 
@@ -345,7 +345,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 50%, #fd79a8 100%);
+            background: linear-gradient(135deg, rgba(255, 234, 167, 0.95) 0%, rgba(250, 177, 160, 0.95) 50%, rgba(253, 121, 168, 0.95) 100%);
+            backdrop-filter: blur(2px);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -614,10 +615,21 @@
 
         // 页面加载完成后初始化加载管理器
         document.addEventListener('DOMContentLoaded', function() {
+            // 立即启动掉落特效，让加载过程更有趣
+            startFoodEffects();
+            
             new LoadingManager();
             // 预加载关键图片
             preloadCriticalImages();
         });
+
+        // 启动所有零食特效
+        function startFoodEffects() {
+            // 立即创建一些初始特效，让加载过程更有趣
+            setTimeout(() => createFoodRain(), 200);
+            setTimeout(() => createFoodMeteor(), 500);
+            setTimeout(() => createBouncingFood(), 800);
+        }
 
         // 添加图片加载优化提示
         function addLoadingOptimizations() {
