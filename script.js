@@ -138,25 +138,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // 设置积分按钮事件
     setupScoreToggleButton();
     
-    // 设置音乐控制事件
-    setupMusicToggleButton();
+    // 音乐功能已禁用
+    // setupMusicToggleButton();
+    // startBackgroundMusic();
     
-    // 页面加载完成后自动开始播放音乐
-    startBackgroundMusic();
-    
-    // 添加用户交互检测，当用户第一次点击时确保音乐开始播放
-    let userInteracted = false;
-    document.addEventListener('click', function() {
-        if (!userInteracted && musicActive) {
-            userInteracted = true;
-            // 用户交互后重新尝试播放音乐
-            if (backgroundMusic && backgroundMusic.paused) {
-                backgroundMusic.play().catch(function(error) {
-                    console.log('音乐播放失败:', error);
-                });
-            }
-        }
-    });
+    // 用户交互检测已禁用
+    // let userInteracted = false;
+    // document.addEventListener('click', function() {
+    //     if (!userInteracted && musicActive) {
+    //         userInteracted = true;
+    //         if (backgroundMusic && backgroundMusic.paused) {
+    //             backgroundMusic.play().catch(function(error) {
+    //                 console.log('音乐播放失败:', error);
+    //             });
+    //         }
+    //     }
+    // });
     
     // 设置分数点击事件
     setupScoreClickEvent();
