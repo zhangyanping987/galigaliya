@@ -113,6 +113,10 @@ class LoadingManager {
 let gameScore = 0;
 let comboCount = 0;
 let lastClickTime = 0;
+
+// 音乐状态 - 默认开启
+let musicActive = true;
+let backgroundMusic = null;
 let gameStarted = false;
 let scoreGameActive = false;
 
@@ -133,6 +137,26 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 设置积分按钮事件
     setupScoreToggleButton();
+    
+    // 设置音乐控制事件
+    setupMusicToggleButton();
+    
+    // 页面加载完成后自动开始播放音乐
+    startBackgroundMusic();
+    
+    // 添加用户交互检测，当用户第一次点击时确保音乐开始播放
+    let userInteracted = false;
+    document.addEventListener('click', function() {
+        if (!userInteracted && musicActive) {
+            userInteracted = true;
+            // 用户交互后重新尝试播放音乐
+            if (backgroundMusic && backgroundMusic.paused) {
+                backgroundMusic.play().catch(function(error) {
+                    console.log('音乐播放失败:', error);
+                });
+            }
+        }
+    });
     
     // 设置分数点击事件
     setupScoreClickEvent();
@@ -1026,3 +1050,84 @@ window.addEventListener('load', function() {
         }, 2000);
     }, 500);
 });
+
+// 设置音乐控制事件
+function setupMusicToggleButton() {
+    const musicToggleBtn = document.getElementById('music-toggle-btn');
+    
+    if (musicToggleBtn) {
+        // 设置初始状态为开启
+        musicToggleBtn.textContent = '🎵 关闭音乐';
+        musicToggleBtn.classList.add('active');
+        
+        musicToggleBtn.addEventListener('click', function() {
+            toggleBackgroundMusic();
+        });
+    }
+}
+
+// 切换背景音乐
+function toggleBackgroundMusic() {
+    const musicToggleBtn = document.getElementById('music-toggle-btn');
+    
+    if (!musicActive) {
+        // 开启音乐
+        startBackgroundMusic();
+        musicToggleBtn.textContent = '🎵 关闭音乐';
+        musicToggleBtn.classList.add('active');
+        musicActive = true;
+        console.log('背景音乐已开启');
+    } else {
+        // 关闭音乐
+        stopBackgroundMusic();
+        musicToggleBtn.textContent = '🎵 开启音乐';
+        musicToggleBtn.classList.remove('active');
+        musicActive = false;
+        console.log('背景音乐已关闭');
+    }
+}
+
+// 开始背景音乐
+function startBackgroundMusic() {
+    // 外部音乐链接 - 您可以根据需要替换为其他音乐链接
+    // QQ音乐外链方法：
+    // 1. 使用QQ音乐外链API：https://api.qq.jsososo.com/
+    // 2. 使用第三方解析服务：https://api.uomg.com/api/qqmusic
+    // 3. 直接使用歌曲ID：https://music.163.com/song/media/outer/url?id=歌曲ID.mp3
+    
+    // 使用服务器上的音频文件
+    const musicUrl = 'http://8.148.70.34/林心念 - 下次见.flac';
+    
+    if (!backgroundMusic) {
+        backgroundMusic = new Audio();
+        backgroundMusic.src = musicUrl;
+        backgroundMusic.loop = true;
+        backgroundMusic.volume = 0.3; // 设置音量为30%
+        
+        // 处理音乐加载错误
+        backgroundMusic.addEventListener('error', function() {
+            console.log('音乐加载失败，请检查网络连接或音乐链接');
+            // 可以在这里添加备用音乐链接
+        });
+        
+        // 处理音乐加载成功
+        backgroundMusic.addEventListener('canplaythrough', function() {
+            console.log('音乐加载成功');
+        });
+    }
+    
+    // 播放音乐
+    backgroundMusic.play().catch(function(error) {
+        console.log('音乐播放失败:', error);
+        // 某些浏览器需要用户交互后才能播放音频
+        console.log('需要用户交互后才能播放音频，请点击页面任意位置');
+    });
+}
+
+// 停止背景音乐
+function stopBackgroundMusic() {
+    if (backgroundMusic) {
+        backgroundMusic.pause();
+        backgroundMusic.currentTime = 0;
+    }
+}

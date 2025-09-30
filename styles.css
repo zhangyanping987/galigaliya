@@ -705,6 +705,41 @@ body {
     border-color: rgba(255, 107, 107, 0.6);
 }
 
+/* 音乐控制按钮 */
+.music-toggle-btn {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(78, 205, 196, 0.3);
+    border-radius: 15px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #4ecdc4;
+    cursor: pointer;
+    z-index: 10002;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    display: block;
+}
+
+.music-toggle-btn:hover {
+    background: rgba(78, 205, 196, 0.1);
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.music-toggle-btn:active {
+    transform: scale(0.95);
+}
+
+.music-toggle-btn.active {
+    background: rgba(78, 205, 196, 0.2);
+    border-color: rgba(78, 205, 196, 0.6);
+}
+
 /* 分数增加动画 */
 .score-popup {
     position: absolute;
@@ -823,6 +858,18 @@ body {
         text-overflow: ellipsis;
     }
     
+    /* 音乐按钮手机适配 */
+    .music-toggle-btn {
+        top: 70px;
+        right: 10px;
+        padding: 8px 12px;
+        font-size: 12px;
+        max-width: calc(100vw - 20px);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
     /* 统计弹窗手机适配 */
     .stats-modal-content {
         width: 95vw;
@@ -910,6 +957,15 @@ body {
     /* 积分按钮小屏幕适配 */
     .score-toggle-btn {
         top: 5px;
+        right: 5px;
+        padding: 6px 10px;
+        font-size: 11px;
+        max-width: calc(100vw - 10px);
+    }
+    
+    /* 音乐按钮小屏幕适配 */
+    .music-toggle-btn {
+        top: 60px;
         right: 5px;
         padding: 6px 10px;
         font-size: 11px;

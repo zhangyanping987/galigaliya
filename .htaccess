@@ -1,0 +1,64 @@
+# CORS 配置 - 允许跨域访问
+<IfModule mod_headers.c>
+    # 允许所有域名访问
+    Header set Access-Control-Allow-Origin "*"
+    
+    # 允许的请求方法
+    Header set Access-Control-Allow-Methods "GET, OPTIONS"
+    
+    # 允许的请求头
+    Header set Access-Control-Allow-Headers "Content-Type, Accept, Origin"
+    
+    # 预检请求缓存时间（1天）
+    Header set Access-Control-Max-Age "86400"
+</IfModule>
+
+# 文件类型 MIME 设置
+<IfModule mod_mime.c>
+    # 音频文件
+    AddType audio/flac .flac
+    AddType audio/mpeg .mp3
+    AddType audio/wav .wav
+    
+    # 图片文件
+    AddType image/gif .gif
+    AddType image/jpeg .jpg .jpeg
+    AddType image/png .png
+</IfModule>
+
+# 启用 Gzip 压缩
+<IfModule mod_deflate.c>
+    # 压缩文本文件
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript
+    AddOutputFilterByType DEFLATE application/javascript application/json
+    
+    # 不压缩图片和音频文件（已经是压缩格式）
+    SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png|flac|mp3)$ no-gzip dont-vary
+</IfModule>
+
+# 浏览器缓存设置
+<IfModule mod_expires.c>
+    ExpiresActive On
+    
+    # 图片缓存 1 年
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    
+    # 音频缓存 1 年
+    ExpiresByType audio/flac "access plus 1 year"
+    ExpiresByType audio/mpeg "access plus 1 year"
+    
+    # HTML/CSS/JS 缓存 1 天（如果您也放在服务器上）
+    ExpiresByType text/html "access plus 1 day"
+    ExpiresByType text/css "access plus 1 day"
+    ExpiresByType application/javascript "access plus 1 day"
+</IfModule>
+
+# 强制缓存控制
+<IfModule mod_headers.c>
+    # 图片和音频文件强缓存
+    <FilesMatch "\.(gif|jpg|jpeg|png|flac|mp3)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+</IfModule>

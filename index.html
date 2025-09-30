@@ -30,14 +30,14 @@
     </style>
     
     <!-- 预加载关键资源 -->
-    <link rel="preload" href="罗小黑开心吃汉堡.gif" as="image" type="image/gif" fetchpriority="high">
+    <link rel="preload" href="http://8.148.70.34/罗小黑开心吃汉堡.gif" as="image" type="image/gif" fetchpriority="high">
     <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <link rel="preload" href="script.js" as="script">
     
     <!-- 非关键资源延迟加载 -->
-    <link rel="preload" href="罗小黑开心摇头.gif" as="image" media="(min-width: 768px)">
-    <link rel="preload" href="罗小黑打喷嚏.gif" as="image" media="(min-width: 768px)">
-    <link rel="preload" href="罗小黑打饱嗝.gif" as="image" media="(min-width: 768px)">
+    <link rel="preload" href="http://8.148.70.34/罗小黑开心摇头.gif" as="image" media="(min-width: 768px)">
+    <link rel="preload" href="http://8.148.70.34/罗小黑打喷嚏.gif" as="image" media="(min-width: 768px)">
+    <link rel="preload" href="http://8.148.70.34/罗小黑打饱嗝.gif" as="image" media="(min-width: 768px)">
     
     <!-- 资源提示 -->
     <link rel="dns-prefetch" href="//hm.baidu.com">
@@ -86,6 +86,11 @@
         🎯 开吃！收集快乐值
     </button>
 
+    <!-- 音乐控制按钮 -->
+    <button id="music-toggle-btn" class="music-toggle-btn">
+        🎵 开启音乐
+    </button>
+
     <!-- 吃零食捕获层 -->
     <div id="click-capture-layer" class="click-capture-layer" style="display: none;"></div>
 
@@ -96,7 +101,7 @@
     <div id="food-effects-container"></div>
     
     <div class="gif-container main-gif">
-        <img src="罗小黑开心吃汉堡.gif" alt="罗小黑开心吃汉堡" class="gif-image" loading="eager" fetchpriority="high" onclick="createClickEffect(event)">
+        <img src="http://8.148.70.34/罗小黑开心吃汉堡.gif" alt="罗小黑开心吃汉堡" class="gif-image" loading="eager" fetchpriority="high" onclick="createClickEffect(event)">
     </div>
     
     <div class="animated-text">
@@ -106,13 +111,13 @@
     <!-- 底部三个小GIF -->
     <div class="bottom-gifs-container">
         <div class="bottom-gif-item">
-            <img data-src="罗小黑开心摇头.gif" alt="罗小黑开心摇头" class="bottom-gif lazy" loading="lazy" fetchpriority="low" onclick="createClickEffect(event)">
+            <img data-src="http://8.148.70.34/罗小黑开心摇头.gif" alt="罗小黑开心摇头" class="bottom-gif lazy" loading="lazy" fetchpriority="low" onclick="createClickEffect(event)">
         </div>
         <div class="bottom-gif-item">
-            <img data-src="罗小黑打喷嚏.gif" alt="罗小黑打喷嚏" class="bottom-gif lazy" loading="lazy" fetchpriority="low" onclick="createClickEffect(event)">
+            <img data-src="http://8.148.70.34/罗小黑打喷嚏.gif" alt="罗小黑打喷嚏" class="bottom-gif lazy" loading="lazy" fetchpriority="low" onclick="createClickEffect(event)">
         </div>
         <div class="bottom-gif-item">
-            <img data-src="罗小黑打饱嗝.gif" alt="罗小黑打饱嗝" class="bottom-gif lazy" loading="lazy" fetchpriority="low" onclick="createClickEffect(event)">
+            <img data-src="http://8.148.70.34/罗小黑打饱嗝.gif" alt="罗小黑打饱嗝" class="bottom-gif lazy" loading="lazy" fetchpriority="low" onclick="createClickEffect(event)">
         </div>
     </div>
 
