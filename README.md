@@ -99,12 +99,22 @@
 
 ## 📁 文件结构
 
+### GitHub Pages 文件（代码）
 ```
 galigaliya/
 ├── index.html              # 主页面
 ├── styles.css              # 样式文件
 ├── script.js               # 脚本文件
 ├── README.md               # 项目说明
+├── .gitignore              # Git 忽略配置
+└── 混合部署指南.md          # 部署说明文档
+```
+
+### 个人服务器文件（媒体）
+```
+http://8.148.70.34/
+├── .htaccess               # 服务器配置（CORS + 缓存）
+├── 林心念 - 下次见.flac      # 背景音乐
 ├── 罗小黑开心吃汉堡.gif      # 主GIF动画
 ├── 罗小黑开心摇头.gif        # 底部GIF动画
 ├── 罗小黑打喷嚏.gif          # 底部GIF动画
@@ -152,13 +162,54 @@ galigaliya/
 
 ## 🚀 部署说明
 
+### 🎯 推荐部署方式：混合部署
+
+本项目采用**混合部署架构**，结合 GitHub Pages 和个人服务器的优势：
+
+- **GitHub Pages**：托管代码文件（HTML/CSS/JS）- 友好域名
+- **个人服务器**：托管大文件（GIF/音频）- 快速加载
+
+#### 架构优势
+✅ GitHub Pages 提供友好域名和全球 CDN  
+✅ 个人服务器加速大文件加载（2.69 MB）  
+✅ 减少 GitHub Pages 流量消耗  
+✅ 提升国内用户访问速度  
+
+#### 文件分布
+**GitHub Pages（约 70 KB）：**
+- index.html (7.14 KB)
+- styles.css (20.92 KB)
+- script.js (35.8 KB)
+- README.md (7.17 KB)
+
+**个人服务器（约 2.69 MB）：**
+- 林心念 - 下次见.flac (2.43 MB)
+- 罗小黑开心吃汉堡.gif (138.27 KB)
+- 罗小黑打饱嗝.gif (32.58 KB)
+- 罗小黑开心摇头.gif (32.52 KB)
+- 罗小黑打喷嚏.gif (25.29 KB)
+
+#### 快速部署
+1. **部署到 GitHub Pages**
+   ```bash
+   git add index.html styles.css script.js README.md
+   git commit -m "部署代码文件"
+   git push origin main
+   ```
+
+2. **上传到个人服务器**
+   - 将 `.htaccess` 和所有媒体文件上传到服务器
+   - 确保 CORS 配置正确
+
+详细部署步骤请查看 `混合部署指南.md`
+
 ### 本地运行
 1. 下载所有文件到本地目录
 2. 用浏览器打开 `index.html`
-3. 确保所有GIF文件在同一目录下
+3. 确保所有GIF和音频文件在同一目录下
 
-### 在线部署
-- **GitHub Pages**：免费静态网站托管
+### 其他部署方式
+- **纯 GitHub Pages**：适合小项目
 - **Vercel**：快速部署，全球CDN
 - **Netlify**：自动部署，表单处理
 - **腾讯云/阿里云**：国内访问优化
@@ -220,7 +271,15 @@ const scoreMap = {
 
 ## 📝 更新日志
 
-### v1.0.0 (当前版本)
+### v1.1.0 (当前版本)
+- ✅ 混合部署架构（GitHub Pages + 个人服务器）
+- ✅ 背景音乐自动播放
+- ✅ KGM 音频解密功能
+- ✅ CORS 跨域配置
+- ✅ 服务器缓存优化
+- ✅ 音乐控制按钮
+
+### v1.0.0
 - ✅ 基础游戏功能
 - ✅ 快乐值收集系统
 - ✅ 统计系统

@@ -1,0 +1,34 @@
+# 大文件 - 托管在个人服务器上，不提交到 GitHub
+*.gif
+*.flac
+*.mp3
+*.wav
+*.kgm
+
+# 临时文件
+*.tmp
+*.temp
+
+# Python 缓存
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 编辑器配置
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 服务器配置文件（包含在服务器上，不提交到 GitHub）
+.htaccess
+
+# 项目文档（本地使用）
+kgm_decrypt.py
+混合部署指南.md

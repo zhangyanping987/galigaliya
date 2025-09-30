@@ -1096,7 +1096,7 @@ function startBackgroundMusic() {
     // 3. 直接使用歌曲ID：https://music.163.com/song/media/outer/url?id=歌曲ID.mp3
     
     // 使用服务器上的音频文件
-    const musicUrl = 'http://8.148.70.34/林心念 - 下次见.flac';
+    const musicUrl = 'https://8.148.70.34/林心念 - 下次见.flac';
     
     if (!backgroundMusic) {
         backgroundMusic = new Audio();
