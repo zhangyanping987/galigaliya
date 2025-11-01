@@ -1032,7 +1032,7 @@ body {
         padding: 20px;
         max-height: 90vh;
     }
-}
+
 
 @media (max-width: 480px) {
     .animated-text {

@@ -1250,20 +1250,20 @@ function spawnCareBubble() {
         position: fixed;
         left: ${left}vw;
         top: ${top}vh;
-        max-width: ${isMobile ? '38vw' : '52vw'};
+        max-width: ${isMobile ? '30vw' : '52vw'};
         background: rgba(255,255,255,.98);
-        border: 2px solid rgba(255,107,107,.35);
+        border: ${isMobile ? '1px' : '2px'} solid rgba(255,107,107,.35);
         color: #444;
-        padding: ${isMobile ? '8px 10px' : '14px 16px'};
-        font-size: ${isMobile ? '12px' : '18px'};
-        border-radius: ${isMobile ? '8px' : '12px'};
-        box-shadow: 0 8px 22px rgba(0,0,0,.22);
+        padding: ${isMobile ? '5px 7px' : '14px 16px'};
+        font-size: ${isMobile ? '8px' : '18px'};
+        border-radius: ${isMobile ? '6px' : '12px'};
+        box-shadow: 0 ${isMobile ? '4px 12px' : '8px 22px'} rgba(0,0,0,.22);
         z-index: 10005;
         animation: careFadeUp 4.5s ease forwards;
         pointer-events: auto;
         cursor: pointer;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
-        line-height: ${isMobile ? '1.4' : '1.5'};
+        line-height: ${isMobile ? '1.25' : '1.5'};
     `;
     
     let removeTimer = setTimeout(() => b.remove(), 4500);
