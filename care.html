@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ffeaa7">
+    <title>给咖喱的小关心</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:linear-gradient(135deg,#ffeaa7 0%,#fab1a0 50%,#fd79a8 100%);font-family:Arial,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px}
+        .wrap{width:100%;max-width:900px;display:flex;flex-direction:column;gap:16px;align-items:center}
+        .title{margin-top:10px;font-weight:bold;font-size:22px;color:#fff;text-shadow:2px 2px 4px rgba(0,0,0,.2)}
+        .actions{display:flex;gap:12px;margin-top:8px}
+        .btn{background:rgba(255,255,255,.9);border:2px solid rgba(255,107,107,.35);color:#ff6b6b;font-weight:bold;border-radius:14px;padding:10px 14px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:.2s}
+        .btn:hover{transform:scale(1.05);box-shadow:0 6px 18px rgba(0,0,0,.22)}
+        .grid{margin-top:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;width:100%}
+        .card{background:rgba(255,255,255,.9);border-radius:16px;padding:14px;border:2px solid rgba(255,107,107,.25);box-shadow:0 4px 14px rgba(0,0,0,.15);cursor:pointer;transition:.2s}
+        .card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.22)}
+        .card small{display:block;color:#ff6b6b;margin-bottom:6px}
+
+        /* 弹窗 */
+        .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:16px;z-index:1000}
+        .overlay.show{display:flex}
+        .dialog{background:linear-gradient(135deg,#fff 0%,#fff5f7 50%,#ffeef3 100%);border-radius:18px;max-width:520px;width:96%;padding:24px 18px;box-shadow:0 12px 36px rgba(0,0,0,.3);position:relative}
+        .dialog h3{margin-bottom:10px;color:#ff6b6b}
+        .dialog p{line-height:1.7;color:#444}
+        .dialog .close{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,107,107,.4);background:#fff;color:#ff6b6b;cursor:pointer;font-weight:bold}
+        .dialog .toolbar{display:flex;gap:8px;margin-top:14px}
+        .chip{background:rgba(255,107,107,.1);color:#ff6b6b;border:1px solid rgba(255,107,107,.25);border-radius:999px;padding:6px 10px;font-size:12px}
+
+        /* 返回按钮 */
+        .back{position:fixed;top:16px;left:16px;text-decoration:none}
+    </style>
+</head>
+<body>
+    <a class="btn back" href="index.html">⬅ 返回首页</a>
+    <div class="wrap">
+        <div class="title">给咖喱的小小关心 💖</div>
+        <div class="actions">
+            <button class="btn" id="randomOne">随机弹出一条</button>
+            <button class="btn" id="playAll">连续弹出多条</button>
+            <button class="btn" id="bubbleMode">周围冒出小关心</button>
+            <button class="btn" id="autoMode">开启随机位置持续弹窗</button>
+        </div>
+        <div class="grid" id="careGrid"></div>
+    </div>
+
+    <!-- 弹窗 -->
+    <div class="overlay" id="overlay">
+        <div class="dialog">
+            <button class="close" id="closeDialog">✕</button>
+            <h3 id="dlgTitle">给你的关心</h3>
+            <p id="dlgContent"></p>
+            <div class="toolbar">
+                <span class="chip" id="dlgTag"></span>
+                <button class="btn" id="nextOne">下一条</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 关心文案库（可自行增删）
+        const cares = [
+            { tag: '休息', text: '今天也很棒呀，别忘了多喝水，闭眼休息一分钟~' },
+            { tag: '吃饭', text: '记得按时吃饭，热乎乎的饭菜会给你新的能量！' },
+            { tag: '鼓励', text: '别急，慢慢来就好，我一直都在为你加油~' },
+            { tag: '放松', text: '深呼吸三次，看看窗外的天空，你已经很努力了。' },
+            { tag: '自信', text: '你真的很好，不要和别人比，做独一无二的你。' },
+            { tag: '睡眠', text: '早点休息，今晚的星星也替我守护你的梦。' },
+            { tag: '拥抱', text: '给自己一个抱抱吧，你值得被温柔以待。' },
+            { tag: '阳光', text: '晒晒太阳，走几步路，快乐会悄悄跟上来。' },
+            { tag: '勇气', text: '如果觉得难，就把目标拆小一点，一步一步来。' },
+            { tag: '安心', text: '你并不孤单，有需要就叫我，我随时出现。' },
+            { tag: '宠爱', text: '奖励自己一杯喜欢的饮料吧，今天也辛苦啦！' },
+            { tag: '肯定', text: '你的感受很重要，被看见、被理解也同样重要。' },
+            // 扩展类型
+            { tag: '学业', text: '做题卡住就歇口气，换个角度它就有答案了。' },
+            { tag: '工作', text: '优先做最重要的一件事，完成它你就会更轻松。' },
+            { tag: '健康', text: '给颈椎放个假，轻轻转动肩颈，放松一下～' },
+            { tag: '天气', text: '出门带件外套，风会小点，你会暖一些。' },
+            { tag: '焦虑', text: '别和情绪对抗，先接住它，然后温柔放下。' },
+            { tag: '坚持', text: '哪怕只前进一步，也是在靠近你想要的生活。' },
+            { tag: '感恩', text: '谢谢今天辛苦的自己，也谢谢正在努力的你。' },
+            { tag: '家庭', text: '给家人发条消息吧，被惦记是很暖的事。' },
+            { tag: '朋友', text: '和朋友分享一件小快乐，快乐会加倍。' },
+            { tag: '运动', text: '伸个懒腰或走两步路，心情会跟着亮一点。' },
+            { tag: '音乐', text: '放一首喜欢的歌，世界立刻有了滤镜。' },
+            { tag: '庆祝', text: '任何小小进步都值得一个拥抱和庆祝！' },
+            { tag: '失落', text: '允许难过一会儿，醒来后我们继续走。' },
+            { tag: '早安', text: '早安呀，今天要带着喜欢出发～' },
+            { tag: '晚安', text: '晚安，月亮和我都祝你做个甜甜的梦。' },
+            { tag: '周一', text: '周一不紧不慢，先把状态找回来就好。' },
+            { tag: '周末', text: '把待办放一放，今天留给喜欢和休息。' },
+            { tag: '考试', text: '会做的稳稳拿下，不会的别纠缠，先过一遍！' },
+            { tag: '项目', text: '拆解任务、画个小清单，你会更有掌控感。' },
+            { tag: '反馈', text: '你说的很重要，先记下来，我们一起优化它。' },
+            { tag: '心情', text: '给感受命名：紧张/期待/轻松…它会变得可聊。' },
+            { tag: '小确幸', text: '买杯小甜饮，奖励认真生活的自己。' },
+            { tag: '专注', text: '设置25分钟专注计时器，结束后拥抱一下自己。' },
+            { tag: '界限', text: '学会说不，守住精力，才能更好地爱。' },
+            { tag: '希望', text: '再难的夜也会过去，太阳总会升起来。' },
+            { tag: '自我照顾', text: '吃好、睡好、动一动，是最基础也最重要的爱。' },
+            { tag: '仪式感', text: '点一支香薰或整理书桌，让生活发光。' },
+            { tag: '勇敢表达', text: '把想说的话写下来，清晰就从这一步开始。' },
+        ];
+
+        const grid = document.getElementById('careGrid');
+        const overlay = document.getElementById('overlay');
+        const dlgContent = document.getElementById('dlgContent');
+        const dlgTag = document.getElementById('dlgTag');
+        const closeDialog = document.getElementById('closeDialog');
+        const nextOne = document.getElementById('nextOne');
+        const randomOne = document.getElementById('randomOne');
+        const playAll = document.getElementById('playAll');
+        const bubbleMode = document.getElementById('bubbleMode');
+        const autoMode = document.getElementById('autoMode');
+
+        let queueIndex = 0;
+        let autoTimer = null;
+
+        // 渲染卡片
+        cares.forEach((c, i) => {
+            const item = document.createElement('div');
+            item.className = 'card';
+            item.innerHTML = `<small>· ${c.tag}</small>${c.text}`;
+            item.addEventListener('click', () => showDialog(i));
+            grid.appendChild(item);
+        });
+
+        function showDialog(i){
+            const data = cares[i];
+            dlgContent.textContent = data.text;
+            dlgTag.textContent = `#${data.tag}`;
+            overlay.classList.add('show');
+            queueIndex = (i + 1) % cares.length;
+        }
+
+        function hideDialog(){
+            overlay.classList.remove('show');
+        }
+
+        function showRandom(){
+            const i = Math.floor(Math.random() * cares.length);
+            showDialog(i);
+        }
+
+        function playSequence(count = 5, interval = 1200){
+            let shown = 0;
+            const timer = setInterval(() => {
+                showDialog(queueIndex);
+                queueIndex = (queueIndex + 1) % cares.length;
+                shown++;
+                if (shown >= count){
+                    clearInterval(timer);
+                }
+            }, interval);
+        }
+
+        function bubbleCare(){
+            // 在页面各处冒出小弹泡文字
+            const n = 16;
+            for(let i=0;i<n;i++){
+                const b = document.createElement('div');
+                const c = cares[Math.floor(Math.random()*cares.length)];
+                b.textContent = c.text;
+                b.style.cssText = `
+                    position: fixed;
+                    left: ${Math.random()*80+10}vw;
+                    top: ${Math.random()*70+10}vh;
+                    max-width: 46vw;
+                    background: rgba(255,255,255,.95);
+                    border: 2px solid rgba(255,107,107,.35);
+                    color: #444;
+                    padding: 12px 14px;
+                    font-size: 18px;
+                    border-radius: 12px;
+                    box-shadow: 0 6px 18px rgba(0,0,0,.2);
+                    z-index: 900;
+                    animation: fadeUp 4s ease forwards;
+                    pointer-events:none;
+                `;
+                document.body.appendChild(b);
+                setTimeout(()=>b.remove(),4000);
+            }
+        }
+
+        // 单个随机位置小弹窗
+        function spawnCareBubble(){
+            const b = document.createElement('div');
+            const c = cares[Math.floor(Math.random()*cares.length)];
+            b.textContent = c.text;
+            const left = Math.random()*86+4; // 4-90 vw
+            const top = Math.random()*86+6;  // 6-92 vh
+            b.style.cssText = `
+                position: fixed;
+                left: ${left}vw;
+                top: ${top}vh;
+                max-width: 52vw;
+                background: rgba(255,255,255,.98);
+                border: 2px solid rgba(255,107,107,.35);
+                color: #444;
+                padding: 14px 16px;
+                font-size: 18px;
+                border-radius: 12px;
+                box-shadow: 0 8px 22px rgba(0,0,0,.22);
+                z-index: 950;
+                animation: fadeUp 4.5s ease forwards;
+                pointer-events:auto;
+                cursor: pointer;
+            `;
+            b.addEventListener('click', ()=> b.remove());
+            document.body.appendChild(b);
+            setTimeout(()=>b.remove(), 4500);
+        }
+
+        // 开关：持续随机位置弹窗
+        function toggleAuto(){
+            if(autoTimer){
+                clearInterval(autoTimer);
+                autoTimer = null;
+                autoMode.textContent = '开启随机位置持续弹窗';
+                return;
+            }
+            // 先立即来一个
+            spawnCareBubble();
+            // 接着以随机间隔持续生成
+            const startInterval = () => {
+                autoTimer = setInterval(() => {
+                    // 每次生成1-3个，增加密度
+                    const k = Math.floor(Math.random()*3)+1;
+                    for(let i=0;i<k;i++){
+                        setTimeout(spawnCareBubble, i*120);
+                    }
+                }, Math.floor(Math.random()*600)+700); // 700-1300ms 更频繁
+            };
+            startInterval();
+            autoMode.textContent = '停止随机位置持续弹窗';
+        }
+
+        // 事件绑定
+        closeDialog.addEventListener('click', hideDialog);
+        overlay.addEventListener('click', (e)=>{ if(e.target===overlay) hideDialog(); });
+        nextOne.addEventListener('click', ()=>{ showDialog(queueIndex); });
+        randomOne.addEventListener('click', showRandom);
+        playAll.addEventListener('click', ()=> playSequence(6, 1200));
+        bubbleMode.addEventListener('click', bubbleCare);
+        autoMode.addEventListener('click', toggleAuto);
+
+        // 进入页面即开启“随机位置持续弹窗”
+        setTimeout(toggleAuto, 300);
+
+        // 动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeUp{0%{opacity:0;transform:translateY(6px)}40%{opacity:1}100%{opacity:0;transform:translateY(-10px)}}
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
+
+

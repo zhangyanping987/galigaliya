@@ -161,6 +161,9 @@ document.addEventListener('DOMContentLoaded', function() {
     new LoadingManager();
     // 预加载关键图片
     preloadCriticalImages();
+    
+    // 初始化关心弹窗系统
+    initCareSystem();
 });
 
 // 设置吃零食捕获层事件
@@ -218,7 +221,7 @@ function toggleScoreGame() {
     const gameHint = document.getElementById('game-hint');
     
     if (scoreGameActive) {
-        // 开启积分游戏
+        // 开启积分游戏，关闭关心弹窗
         scoreToggleBtn.textContent = '🎯 吃饱啦吃饱啦！停止收集快乐值';
         scoreToggleBtn.classList.add('active');
         if (gameScore) gameScore.style.display = 'block';
@@ -229,13 +232,19 @@ function toggleScoreGame() {
         comboCount = 0;
         updateScoreDisplay();
         
+        // 关闭关心弹窗
+        stopCareAutoMode();
+        
         console.log('积分游戏已开启');
     } else {
-        // 关闭积分游戏
+        // 关闭积分游戏，开启关心弹窗
         scoreToggleBtn.textContent = '🎯 开吃！收集快乐值';
         scoreToggleBtn.classList.remove('active');
         if (gameScore) gameScore.style.display = 'none';
         if (gameHint) gameHint.style.display = 'none';
+        
+        // 重新开启关心弹窗
+        startCareAutoMode();
         
         console.log('积分游戏已关闭');
     }
@@ -1127,4 +1136,135 @@ function stopBackgroundMusic() {
         backgroundMusic.pause();
         backgroundMusic.currentTime = 0;
     }
+}
+
+// ========== 关心弹窗系统 ==========
+// 关心文案库
+const cares = [
+    '今天也很棒呀，别忘了多喝水，闭眼休息一分钟~',
+    '记得按时吃饭，热乎乎的饭菜会给你新的能量！',
+    '别急，慢慢来就好，我一直都在为你加油~',
+    '深呼吸三次，看看窗外的天空，你已经很努力了。',
+    '你真的很好，不要和别人比，做独一无二的你。',
+    '早点休息，今晚的星星也替我守护你的梦。',
+    '给自己一个抱抱吧，你值得被温柔以待。',
+    '晒晒太阳，走几步路，快乐会悄悄跟上来。',
+    '如果觉得难，就把目标拆小一点，一步一步来。',
+    '你并不孤单，有需要就叫我，我随时出现。',
+    '奖励自己一杯喜欢的饮料吧，今天也辛苦啦！',
+    '你的感受很重要，被看见、被理解也同样重要。',
+    '做题卡住就歇口气，换个角度它就有答案了。',
+    '优先做最重要的一件事，完成它你就会更轻松。',
+    '给颈椎放个假，轻轻转动肩颈，放松一下～',
+    '出门带件外套，风会小点，你会暖一些。',
+    '别和情绪对抗，先接住它，然后温柔放下。',
+    '哪怕只前进一步，也是在靠近你想要的生活。',
+    '谢谢今天辛苦的自己，也谢谢正在努力的你。',
+    '和朋友分享一件小快乐，快乐会加倍。',
+    '伸个懒腰或走两步路，心情会跟着亮一点。',
+    '放一首喜欢的歌，世界立刻有了滤镜。',
+    '任何小小进步都值得一个拥抱和庆祝！',
+    '允许难过一会儿，醒来后我们继续走。',
+    '早安呀，今天要带着喜欢出发～',
+    '晚安，月亮和我都祝你做个甜甜的梦。',
+    '周一不紧不慢，先把状态找回来就好。',
+    '把待办放一放，今天留给喜欢和休息。',
+    '会做的稳稳拿下，不会的别纠缠，先过一遍！',
+    '拆解任务、画个小清单，你会更有掌控感。',
+    '你说的很重要，先记下来，我们一起优化它。',
+    '给感受命名：紧张/期待/轻松…它会变得可聊。',
+    '买杯小甜饮，奖励认真生活的自己。',
+    '设置25分钟专注计时器，结束后拥抱一下自己。',
+    '学会说不，守住精力，才能更好地爱。',
+    '再难的夜也会过去，太阳总会升起来。',
+    '吃好、睡好、动一动，是最基础也最重要的爱。',
+    '点一支香薰或整理书桌，让生活发光。',
+    '把想说的话写下来，清晰就从这一步开始。',
+];
+
+let careAutoTimer = null;
+
+// 单个随机位置小弹窗
+function spawnCareBubble() {
+    const b = document.createElement('div');
+    const c = cares[Math.floor(Math.random() * cares.length)];
+    b.textContent = c;
+    const left = Math.random() * 86 + 4;
+    const top = Math.random() * 86 + 6;
+    b.style.cssText = `
+        position: fixed;
+        left: ${left}vw;
+        top: ${top}vh;
+        max-width: 52vw;
+        background: rgba(255,255,255,.98);
+        border: 2px solid rgba(255,107,107,.35);
+        color: #444;
+        padding: 14px 16px;
+        font-size: 18px;
+        border-radius: 12px;
+        box-shadow: 0 8px 22px rgba(0,0,0,.22);
+        z-index: 10005;
+        animation: careFadeUp 4.5s ease forwards;
+        pointer-events: auto;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    `;
+    
+    let removeTimer = setTimeout(() => b.remove(), 4500);
+    
+    // 鼠标悬停时暂停消失动画并保持显示
+    b.addEventListener('mouseenter', () => {
+        b.style.animationPlayState = 'paused';
+        b.style.opacity = '1';
+        b.style.transform = 'translateY(0) scale(1.05)';
+        b.style.boxShadow = '0 12px 30px rgba(0,0,0,.3)';
+        clearTimeout(removeTimer);
+    });
+    
+    // 鼠标移出后恢复并在1秒后消失
+    b.addEventListener('mouseleave', () => {
+        b.style.animationPlayState = 'running';
+        b.style.transform = 'translateY(0) scale(1)';
+        b.style.boxShadow = '0 8px 22px rgba(0,0,0,.22)';
+        removeTimer = setTimeout(() => b.remove(), 1000);
+    });
+    
+    b.addEventListener('click', () => {
+        clearTimeout(removeTimer);
+        b.remove();
+    });
+    
+    document.body.appendChild(b);
+}
+
+// 开启关心弹窗自动模式
+function startCareAutoMode() {
+    if (careAutoTimer) return; // 已经在运行
+    
+    spawnCareBubble();
+    careAutoTimer = setInterval(() => {
+        const k = Math.floor(Math.random() * 3) + 1;
+        for (let i = 0; i < k; i++) {
+            setTimeout(spawnCareBubble, i * 120);
+        }
+    }, Math.floor(Math.random() * 600) + 700);
+    
+    console.log('关心弹窗已开启');
+}
+
+// 停止关心弹窗自动模式
+function stopCareAutoMode() {
+    if (careAutoTimer) {
+        clearInterval(careAutoTimer);
+        careAutoTimer = null;
+        console.log('关心弹窗已关闭');
+    }
+}
+
+// 初始化关心弹窗系统
+function initCareSystem() {
+    // 默认开启关心弹窗
+    setTimeout(() => {
+        startCareAutoMode();
+    }, 1000);
 }
