@@ -1242,43 +1242,53 @@ function spawnCareBubble() {
     b.textContent = c;
     const left = Math.random() * 86 + 4;
     const top = Math.random() * 86 + 6;
+    
+    // 检测是否为移动端
+    const isMobile = window.innerWidth <= 768;
+    
     b.style.cssText = `
         position: fixed;
         left: ${left}vw;
         top: ${top}vh;
-        max-width: 52vw;
+        max-width: ${isMobile ? '38vw' : '52vw'};
         background: rgba(255,255,255,.98);
         border: 2px solid rgba(255,107,107,.35);
         color: #444;
-        padding: 14px 16px;
-        font-size: 18px;
-        border-radius: 12px;
+        padding: ${isMobile ? '8px 10px' : '14px 16px'};
+        font-size: ${isMobile ? '12px' : '18px'};
+        border-radius: ${isMobile ? '8px' : '12px'};
         box-shadow: 0 8px 22px rgba(0,0,0,.22);
         z-index: 10005;
         animation: careFadeUp 4.5s ease forwards;
         pointer-events: auto;
         cursor: pointer;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
+        line-height: ${isMobile ? '1.4' : '1.5'};
     `;
     
     let removeTimer = setTimeout(() => b.remove(), 4500);
     
-    // 鼠标悬停时暂停消失动画并保持显示
-    b.addEventListener('mouseenter', () => {
+    // 鼠标/触摸悬停时暂停消失动画并保持显示
+    const handleEnter = () => {
         b.style.animationPlayState = 'paused';
         b.style.opacity = '1';
-        b.style.transform = 'translateY(0) scale(1.05)';
+        b.style.transform = `translateY(0) scale(${isMobile ? '1.03' : '1.05'})`;
         b.style.boxShadow = '0 12px 30px rgba(0,0,0,.3)';
         clearTimeout(removeTimer);
-    });
+    };
     
-    // 鼠标移出后恢复并在1秒后消失
-    b.addEventListener('mouseleave', () => {
+    // 鼠标/触摸移出后恢复并在1秒后消失
+    const handleLeave = () => {
         b.style.animationPlayState = 'running';
         b.style.transform = 'translateY(0) scale(1)';
         b.style.boxShadow = '0 8px 22px rgba(0,0,0,.22)';
         removeTimer = setTimeout(() => b.remove(), 1000);
-    });
+    };
+    
+    b.addEventListener('mouseenter', handleEnter);
+    b.addEventListener('mouseleave', handleLeave);
+    b.addEventListener('touchstart', handleEnter);
+    b.addEventListener('touchend', handleLeave);
     
     b.addEventListener('click', () => {
         clearTimeout(removeTimer);
