@@ -25,6 +25,14 @@ class LoadingManager {
             return;
         }
 
+        // 添加超时保护：10秒后强制隐藏加载界面
+        this.loadingTimeout = setTimeout(() => {
+            console.warn('⚠️ 图片加载超时，强制隐藏加载界面');
+            if (this.loadingOverlay && this.loadingOverlay.style.display !== 'none') {
+                this.hideLoading();
+            }
+        }, 10000);
+
         // 开始预加载图片
         this.preloadImages();
     }
@@ -68,6 +76,10 @@ class LoadingManager {
         
         // 检查是否全部加载完成
         if (this.loadedCount >= this.totalImages) {
+            // 清除超时保护
+            if (this.loadingTimeout) {
+                clearTimeout(this.loadingTimeout);
+            }
             setTimeout(() => {
                 this.hideLoading();
             }, 500);
@@ -86,6 +98,10 @@ class LoadingManager {
         img.style.display = 'none';
         
         if (this.loadedCount >= this.totalImages) {
+            // 清除超时保护
+            if (this.loadingTimeout) {
+                clearTimeout(this.loadingTimeout);
+            }
             setTimeout(() => {
                 this.hideLoading();
             }, 500);
@@ -164,7 +180,1072 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 初始化关心弹窗系统
     initCareSystem();
+    
+    // 检查是否为生日日期（1月2日）并显示生日彩蛋
+    checkBirthdayEgg();
 });
+
+// ========== 生日惊喜彩蛋系统 ==========
+let birthdayEggActive = false;
+
+// 检查是否为生日日期（以北京时间为准）
+function checkBirthdayEgg() {
+    // 获取北京时间
+    const beijingTime = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Shanghai' }));
+    const month = beijingTime.getMonth() + 1; // getMonth() 返回 0-11，所以+1
+    const date = beijingTime.getDate();
+    
+    // 调试信息
+    console.log('🕐 当前北京时间:', beijingTime.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }));
+    console.log('📅 检查日期: 月份=' + month + ', 日期=' + date);
+    
+    // 检查是否为1月2日
+    if (month === 1 && date === 2) {
+        birthdayEggActive = true;
+        console.log('🎉 生日彩蛋已激活！');
+        // 延迟一点显示，让页面先加载
+        setTimeout(() => {
+            showBirthdayEgg();
+        }, 1500);
+    } else {
+        console.log('ℹ️ 今天不是1月2日，生日彩蛋未激活');
+    }
+}
+
+// 显示生日彩蛋
+function showBirthdayEgg() {
+    // 第一步：创建暗场覆盖层
+    createBirthdayDarkOverlay(() => {
+        // 第二步：显示倒计时
+        showBirthdayCountdown(() => {
+            // 第三步：显示闪烁的"生日快乐"标题
+            showBirthdayTitle(() => {
+                // 第四步：创建生日背景粒子效果
+                createBirthdayParticles();
+                
+                // 第五步：创建彩色纸屑效果
+                createBirthdayConfetti();
+                
+                // 第六步：显示生日祝福弹窗（带蜡烛）
+                setTimeout(() => {
+                    showBirthdayModal();
+                }, 800);
+                
+                // 第七步：启动生日元素掉落（可点击收集）
+                startBirthdayElements();
+                
+                console.log('🎉 生日快乐！生日彩蛋已激活！');
+            });
+        });
+    });
+}
+
+// 创建生日背景粒子效果
+function createBirthdayParticles() {
+    const particleContainer = document.createElement('div');
+    particleContainer.id = 'birthday-particles';
+    particleContainer.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 5000;
+        overflow: hidden;
+    `;
+    document.body.appendChild(particleContainer);
+    
+    // 创建闪烁粒子
+    for (let i = 0; i < 50; i++) {
+        setTimeout(() => {
+            createBirthdayParticle(particleContainer);
+        }, i * 100);
+    }
+    
+    // 持续创建新粒子
+    const particleInterval = setInterval(() => {
+        if (birthdayEggActive) {
+            createBirthdayParticle(particleContainer);
+        } else {
+            clearInterval(particleInterval);
+        }
+    }, 300);
+}
+
+// 创建暗场覆盖层（仪式感第一步）
+function createBirthdayDarkOverlay(callback) {
+    const darkOverlay = document.createElement('div');
+    darkOverlay.id = 'birthday-dark-overlay';
+    darkOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 14000;
+        animation: birthdayDarkFadeIn 0.8s ease;
+    `;
+    document.body.appendChild(darkOverlay);
+    
+    setTimeout(() => {
+        callback();
+    }, 800);
+}
+
+// 播放生日音效
+function playBirthdaySound(type) {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        if (type === 'countdown') {
+            // 倒计时音效：短促的提示音
+            oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.1);
+            gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.2);
+        } else if (type === 'celebration') {
+            // 庆祝音效：愉快的音调
+            oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C
+            oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E
+            oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G
+            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.4);
+        }
+    } catch (e) {
+        // 如果音频不支持，静默失败
+        console.log('音频播放不支持');
+    }
+}
+
+// 显示倒计时（仪式感第二步）
+function showBirthdayCountdown(callback) {
+    const countdownContainer = document.createElement('div');
+    countdownContainer.id = 'birthday-countdown';
+    countdownContainer.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 14500;
+        text-align: center;
+    `;
+    
+    let count = 3;
+    const countdownText = document.createElement('div');
+    countdownText.style.cssText = `
+        font-size: 120px;
+        font-weight: bold;
+        color: #ffeaa7;
+        text-shadow: 0 0 30px rgba(255, 234, 167, 0.8), 0 0 60px rgba(255, 234, 167, 0.6);
+        animation: birthdayCountdownPop 0.6s ease;
+    `;
+    countdownText.textContent = count;
+    
+    countdownContainer.appendChild(countdownText);
+    document.body.appendChild(countdownContainer);
+    
+    // 播放第一个倒计时音效
+    playBirthdaySound('countdown');
+    
+    const countdownInterval = setInterval(() => {
+        count--;
+        if (count > 0) {
+            countdownText.textContent = count;
+            countdownText.style.animation = 'none';
+            setTimeout(() => {
+                countdownText.style.animation = 'birthdayCountdownPop 0.6s ease';
+            }, 10);
+            // 播放倒计时音效
+            playBirthdaySound('countdown');
+        } else {
+            countdownText.textContent = '🎉';
+            countdownText.style.fontSize = '150px';
+            clearInterval(countdownInterval);
+            // 播放庆祝音效
+            playBirthdaySound('celebration');
+            
+            setTimeout(() => {
+                countdownContainer.style.animation = 'birthdayCountdownFadeOut 0.5s ease';
+                setTimeout(() => {
+                    countdownContainer.remove();
+                    callback();
+                }, 500);
+            }, 800);
+        }
+    }, 800);
+}
+
+// 显示"生日快乐"标题（仪式感第三步）- 大蛋糕为主角
+function showBirthdayTitle(callback) {
+    const titleContainer = document.createElement('div');
+    titleContainer.id = 'birthday-title-screen';
+    titleContainer.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 14600;
+        text-align: center;
+        animation: birthdayTitleScreenIn 1s ease;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    `;
+    
+    // 创建大蛋糕（主角）
+    const bigCake = document.createElement('div');
+    bigCake.className = 'birthday-title-cake';
+    bigCake.innerHTML = `
+        <div class="title-cake-layer title-cake-layer-3"></div>
+        <div class="title-cake-layer title-cake-layer-2"></div>
+        <div class="title-cake-layer title-cake-layer-1"></div>
+        <div class="title-cake-decoration">
+            <span class="title-decoration">🍓</span>
+            <span class="title-decoration">🍒</span>
+            <span class="title-decoration">🍑</span>
+            <span class="title-decoration">🍇</span>
+        </div>
+        <div class="title-candles">
+            <span class="title-candle">🕯️</span>
+            <span class="title-candle">🕯️</span>
+            <span class="title-candle">🕯️</span>
+        </div>
+    `;
+    
+    // 创建"生日快乐"文字（作为点缀）
+    const titleText = document.createElement('div');
+    titleText.className = 'birthday-title-text-minor';
+    titleText.innerHTML = `
+        <div class="birthday-text">生日快乐</div>
+        <div class="birthday-emojis">🎉 ✨ 🎈</div>
+    `;
+    
+    titleContainer.appendChild(bigCake);
+    titleContainer.appendChild(titleText);
+    document.body.appendChild(titleContainer);
+    
+    // 蜡烛依次点亮
+    setTimeout(() => {
+        const candles = titleContainer.querySelectorAll('.title-candle');
+        candles.forEach((candle, index) => {
+            setTimeout(() => {
+                candle.classList.add('title-candle-lit');
+            }, index * 300);
+        });
+    }, 500);
+    
+    // 添加闪烁效果
+    setTimeout(() => {
+        titleText.style.animation = 'birthdayTitleFlash 1s ease-in-out 3';
+        
+        setTimeout(() => {
+            titleContainer.style.animation = 'birthdayTitleScreenOut 0.8s ease';
+            setTimeout(() => {
+                titleContainer.remove();
+                // 移除暗场覆盖层
+                const darkOverlay = document.getElementById('birthday-dark-overlay');
+                if (darkOverlay) {
+                    darkOverlay.style.animation = 'birthdayDarkFadeOut 0.5s ease';
+                    setTimeout(() => {
+                        darkOverlay.remove();
+                    }, 500);
+                }
+                callback();
+            }, 800);
+        }, 3500);
+    }, 100);
+}
+
+// 创建单个闪烁粒子
+function createBirthdayParticle(container) {
+    const particle = document.createElement('div');
+    const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#feca57', '#ff9ff3', '#ffeaa7'];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    const emojis = ['✨', '⭐', '💫', '🌟', '💖', '💕'];
+    const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+    
+    particle.textContent = randomEmoji;
+    particle.style.cssText = `
+        position: absolute;
+        left: ${Math.random() * 100}%;
+        top: ${Math.random() * 100}%;
+        font-size: ${Math.random() * 20 + 15}px;
+        opacity: ${Math.random() * 0.5 + 0.3};
+        animation: birthdayTwinkle ${Math.random() * 2 + 2}s ease-in-out infinite;
+        pointer-events: none;
+    `;
+    
+    container.appendChild(particle);
+    
+    setTimeout(() => {
+        if (particle.parentNode) {
+            particle.remove();
+        }
+    }, 5000);
+}
+
+// 创建彩色纸屑效果
+function createBirthdayConfetti() {
+    const confettiContainer = document.createElement('div');
+    confettiContainer.id = 'birthday-confetti';
+    confettiContainer.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 4999;
+        overflow: hidden;
+    `;
+    document.body.appendChild(confettiContainer);
+    
+    // 创建多波纸屑
+    for (let wave = 0; wave < 3; wave++) {
+        setTimeout(() => {
+            createConfettiWave(confettiContainer);
+        }, wave * 300);
+    }
+}
+
+// 创建一波纸屑
+function createConfettiWave(container) {
+    const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#feca57', '#ff9ff3', '#ffeaa7', '#fd79a8'];
+    const shapes = ['🎉', '🎊', '✨', '⭐'];
+    
+    for (let i = 0; i < 30; i++) {
+        const confetti = document.createElement('div');
+        const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        
+        confetti.textContent = randomShape;
+        confetti.style.cssText = `
+            position: absolute;
+            left: ${Math.random() * 100}%;
+            top: -50px;
+            font-size: ${Math.random() * 20 + 15}px;
+            color: ${randomColor};
+            opacity: 0.9;
+            animation: confettiFall ${Math.random() * 3 + 3}s ease-out forwards;
+            transform: rotate(${Math.random() * 360}deg);
+        `;
+        
+        container.appendChild(confetti);
+        
+        setTimeout(() => {
+            if (confetti.parentNode) {
+                confetti.remove();
+            }
+        }, 6000);
+    }
+}
+
+// 显示生日祝福弹窗
+function showBirthdayModal() {
+    const modal = document.createElement('div');
+    modal.className = 'birthday-modal-overlay';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 15000;
+        backdrop-filter: blur(8px);
+        animation: birthdayFadeIn 0.8s ease;
+    `;
+    
+    const content = document.createElement('div');
+    content.className = 'birthday-modal-content';
+    content.innerHTML = `
+        <div class="birthday-cake-wrapper">
+            <div class="birthday-special-cake">
+                <div class="cake-layer cake-layer-3"></div>
+                <div class="cake-layer cake-layer-2"></div>
+                <div class="cake-layer cake-layer-1"></div>
+                <div class="cake-decoration">
+                    <span class="decoration decoration-1">🍓</span>
+                    <span class="decoration decoration-2">🍒</span>
+                    <span class="decoration decoration-3">🍑</span>
+                    <span class="decoration decoration-4">🍇</span>
+                    <span class="decoration decoration-5">🍓</span>
+                </div>
+                <div class="birthday-candles">
+                    <span class="candle">🕯️</span>
+                    <span class="candle">🕯️</span>
+                    <span class="candle">🕯️</span>
+                </div>
+            </div>
+        </div>
+        <h1 class="birthday-title">生日快乐！🎉</h1>
+        <p class="birthday-message">今天是你的专属日子！</p>
+        <p class="birthday-submessage">这份专属的生日蛋糕，是我为你精心准备的～</p>
+        <div class="birthday-wishes">
+            <div class="wish-item">💝 愿你的每一天都像这蛋糕一样甜美</div>
+            <div class="wish-item">🌟 愿你所有的愿望都能实现</div>
+            <div class="wish-item">🎁 愿你被这个世界温柔以待</div>
+        </div>
+        <div class="birthday-heart-message">
+            <span class="heart-emoji">💕</span>
+            <span>愿你永远开心，永远被爱</span>
+            <span class="heart-emoji">💕</span>
+        </div>
+        <div class="birthday-balloons">
+            <span class="balloon">🎈</span>
+            <span class="balloon">🎈</span>
+            <span class="balloon">🎈</span>
+        </div>
+        <div class="birthday-interactions">
+            <button class="birthday-blow-btn" id="blow-candles-btn">💨 吹蜡烛许愿</button>
+        </div>
+        <button class="birthday-close-btn" id="close-modal-btn" style="display: none;">知道啦</button>
+    `;
+    
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+    
+    let candlesBlown = 0;
+    const totalCandles = 3;
+    let wishMade = false;
+    
+    // 蜡烛点燃动画
+    setTimeout(() => {
+        const candles = content.querySelectorAll('.candle');
+        candles.forEach((candle, index) => {
+            setTimeout(() => {
+                candle.classList.add('candle-lit');
+                setTimeout(() => {
+                    candle.classList.add('candle-burn');
+                }, 100);
+            }, index * 250);
+        });
+    }, 500);
+    
+    // 吹蜡烛功能
+    const blowBtn = content.querySelector('#blow-candles-btn');
+    const candles = content.querySelectorAll('.candle');
+    
+    blowBtn.addEventListener('click', () => {
+        if (candlesBlown < totalCandles) {
+            // 播放吹气音效
+            playBlowSound();
+            
+            // 依次吹灭蜡烛
+            candles.forEach((candle, index) => {
+                if (!candle.classList.contains('candle-blown')) {
+                    setTimeout(() => {
+                        blowOutCandle(candle);
+                        candlesBlown++;
+                        
+                        // 所有蜡烛都吹灭后，显示许愿界面
+                        if (candlesBlown === totalCandles) {
+                            setTimeout(() => {
+                                showWishModal(content, modal);
+                            }, 800);
+                        }
+                    }, index * 300);
+                    return;
+                }
+            });
+        }
+    });
+    
+    // 也可以直接点击蜡烛吹灭
+    candles.forEach((candle) => {
+        candle.addEventListener('click', () => {
+            if (!candle.classList.contains('candle-blown') && candle.classList.contains('candle-lit')) {
+                playBlowSound();
+                blowOutCandle(candle);
+                candlesBlown++;
+                
+                if (candlesBlown === totalCandles) {
+                    setTimeout(() => {
+                        showWishModal(content, modal);
+                    }, 800);
+                }
+            }
+        });
+        
+        // 添加提示
+        candle.style.cursor = 'pointer';
+        candle.title = '点击吹灭蜡烛';
+    });
+    
+    // 关闭按钮事件
+    const closeBtn = content.querySelector('#close-modal-btn');
+    closeBtn.addEventListener('click', () => {
+        // 添加关闭特效
+        content.style.animation = 'birthdayModalShake 0.3s ease';
+        setTimeout(() => {
+            modal.style.animation = 'birthdayFadeOut 0.5s ease';
+            setTimeout(() => {
+                modal.remove();
+            }, 500);
+        }, 300);
+    });
+    
+    // 点击背景也可以关闭（但需要先许愿）
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal && wishMade) {
+            content.style.animation = 'birthdayModalShake 0.3s ease';
+            setTimeout(() => {
+                modal.style.animation = 'birthdayFadeOut 0.5s ease';
+                setTimeout(() => {
+                    modal.remove();
+                }, 500);
+            }, 300);
+        }
+    });
+}
+
+// 吹灭蜡烛
+function blowOutCandle(candle) {
+    candle.classList.add('candle-blown');
+    candle.classList.remove('candle-burn');
+    
+    // 创建烟雾效果
+    const smoke = document.createElement('div');
+    smoke.className = 'candle-smoke';
+    const rect = candle.getBoundingClientRect();
+    smoke.style.cssText = `
+        position: fixed;
+        left: ${rect.left + rect.width / 2}px;
+        top: ${rect.top}px;
+        width: 20px;
+        height: 20px;
+        background: rgba(200, 200, 200, 0.6);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 15001;
+        animation: smokeRise 1.5s ease-out forwards;
+    `;
+    document.body.appendChild(smoke);
+    
+    setTimeout(() => {
+        smoke.remove();
+    }, 1500);
+}
+
+// 播放吹气音效
+function playBlowSound() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        // 吹气音效：低频风声
+        oscillator.type = 'sawtooth';
+        oscillator.frequency.setValueAtTime(150, audioContext.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(80, audioContext.currentTime + 0.3);
+        
+        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.3);
+    } catch (e) {
+        console.log('音频播放不支持');
+    }
+}
+
+// 显示许愿界面
+function showWishModal(content, modal) {
+    // 隐藏吹蜡烛按钮
+    const blowBtn = content.querySelector('#blow-candles-btn');
+    if (blowBtn) {
+        blowBtn.style.display = 'none';
+    }
+    
+    const wishContainer = document.createElement('div');
+    wishContainer.className = 'wish-modal-container';
+    wishContainer.innerHTML = `
+        <div class="wish-modal-content">
+            <div class="wish-title">✨ 许个愿吧 ✨</div>
+            <p class="wish-hint">闭上眼睛，在心里默默许下你的愿望...</p>
+            <div class="wish-options">
+                <button class="wish-option-btn" data-wish="健康快乐">💚 健康快乐</button>
+                <button class="wish-option-btn" data-wish="心想事成">💫 心想事成</button>
+                <button class="wish-option-btn" data-wish="学业有成">📚 学业有成</button>
+                <button class="wish-option-btn" data-wish="工作顺利">💼 工作顺利</button>
+                <button class="wish-option-btn" data-wish="爱情甜蜜">💕 爱情甜蜜</button>
+                <button class="wish-option-btn" data-wish="财源滚滚">💰 财源滚滚</button>
+            </div>
+            <div class="wish-custom">
+                <input type="text" class="wish-input" placeholder="或者写下你的专属愿望..." maxlength="20">
+                <button class="wish-submit-btn">许愿</button>
+            </div>
+        </div>
+    `;
+    
+    content.appendChild(wishContainer);
+    
+    // 许愿选项按钮
+    const wishOptions = wishContainer.querySelectorAll('.wish-option-btn');
+    wishOptions.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const wish = btn.dataset.wish;
+            completeWish(wish, wishContainer, content, modal);
+        });
+    });
+    
+    // 自定义愿望
+    const wishInput = wishContainer.querySelector('.wish-input');
+    const wishSubmit = wishContainer.querySelector('.wish-submit-btn');
+    
+    wishSubmit.addEventListener('click', () => {
+        const customWish = wishInput.value.trim();
+        if (customWish) {
+            completeWish(customWish, wishContainer, content, modal);
+        } else {
+            wishInput.style.border = '2px solid #ff6b6b';
+            setTimeout(() => {
+                wishInput.style.border = '2px solid rgba(255, 255, 255, 0.3)';
+            }, 500);
+        }
+    });
+    
+    // 回车提交
+    wishInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            wishSubmit.click();
+        }
+    });
+}
+
+// 许愿数据收集配置（GitHub Pages 专用）
+// 
+// 由于 GitHub Pages 只支持静态网站，推荐使用以下方案：
+//
+// ⭐ 方案一：使用 Webhook.site（最简单，强烈推荐）
+// 1. 访问 https://webhook.site
+// 2. 复制生成的唯一URL（类似：https://webhook.site/xxxxxxxx-xxxx-xxxx-xxxxxxxxxxxx）
+// 3. 填入下面的 WISH_API_URL
+// 4. 所有许愿会发送到 webhook.site，你可以在网页上实时查看
+//
+// 方案二：使用 Formspree（发送到邮箱）
+// 1. 访问 https://formspree.io 注册
+// 2. 创建表单获取ID
+// 3. 填入：'https://formspree.io/f/你的表单ID'
+//
+// 如果留空，许愿内容会在浏览器控制台输出（按F12查看）
+// 详细说明请查看：GitHub-Pages-许愿收集方案.md
+const WISH_API_URL = 'https://webhook.site/31956b7c-12fb-458d-8c6b-52e64a1fd0c6'; // 在这里填入你的接收地址
+
+// 发送许愿数据到服务器
+function sendWishToServer(wish) {
+    // 获取北京时间
+    const beijingTime = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Shanghai' }));
+    
+    const wishData = {
+        wish: wish,
+        timestamp: beijingTime.toISOString(),
+        date: beijingTime.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }),
+        beijingTime: beijingTime.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        userAgent: navigator.userAgent,
+        language: navigator.language,
+        timezone: 'Asia/Shanghai',
+        referrer: document.referrer || 'direct'
+    };
+    
+    // 如果有配置API地址，发送到服务器
+    if (WISH_API_URL && WISH_API_URL.trim() !== '') {
+        // 先输出调试信息
+        console.log('📤 正在发送许愿数据...');
+        console.log('许愿内容:', wish);
+        console.log('完整数据:', wishData);
+        console.log('发送地址:', WISH_API_URL);
+        
+        // 确保数据不为空
+        if (!wish || wish.trim() === '') {
+            console.error('❌ 许愿内容为空，无法发送');
+            return;
+        }
+        
+        const jsonData = JSON.stringify(wishData);
+        console.log('JSON数据:', jsonData);
+        
+        // 检测是否为本地文件访问（file://协议）
+        const isLocalFile = window.location.protocol === 'file:';
+        
+        if (isLocalFile) {
+            console.warn('⚠️ 检测到本地文件访问（file://协议）');
+            console.warn('⚠️ 由于CORS限制，将使用FormData方式发送数据');
+            
+            // 本地文件访问时，使用FormData方式（webhook.site支持）
+            const formData = new FormData();
+            formData.append('wish', wish);
+            formData.append('data', jsonData); // 完整JSON数据
+            formData.append('timestamp', wishData.timestamp);
+            formData.append('date', wishData.date);
+            formData.append('beijingTime', wishData.beijingTime);
+            
+            fetch(WISH_API_URL, {
+                method: 'POST',
+                body: formData,
+                mode: 'no-cors', // 本地文件必须使用no-cors
+                cache: 'no-cache'
+            })
+            .then(() => {
+                // no-cors模式下无法读取响应，但请求应该已发送
+                console.log('📤 许愿数据已发送（no-cors模式）');
+                console.log('💡 提示：请在webhook.site查看是否收到数据');
+                console.log('💡 提示：通过HTTP服务器访问（如GitHub Pages）可以正常接收响应');
+            })
+            .catch(error => {
+                console.error('❌ 发送许愿时出错:', error);
+                console.error('错误详情:', error.message);
+                console.log('许愿内容:', wishData);
+            });
+        } else {
+            // 正常HTTP访问时使用cors模式
+            fetch(WISH_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: jsonData,
+                mode: 'cors',
+                cache: 'no-cache'
+            })
+            .then(response => {
+                console.log('📥 收到响应:', response.status, response.statusText);
+                console.log('响应头:', response.headers);
+                if (response.ok) {
+                    console.log('✅ 许愿已成功发送到服务器');
+                    return response.text().then(text => {
+                        console.log('响应内容:', text);
+                    });
+                } else {
+                    console.warn('⚠️ 许愿发送失败，状态码:', response.status);
+                    // 失败时也在控制台记录
+                    console.log('许愿内容:', wishData);
+                    return response.text().then(text => {
+                        console.log('错误响应:', text);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('❌ 发送许愿时出错:', error);
+                console.error('错误详情:', error.message);
+                console.error('错误堆栈:', error.stack);
+                // 出错时也在控制台记录
+                console.log('许愿内容:', wishData);
+                console.log('JSON数据:', jsonData);
+            });
+        }
+    } else {
+        // 如果没有配置API，在控制台输出（方便调试和查看）
+        console.log('🎂 收到新的许愿:');
+        console.log('愿望内容:', wish);
+        console.log('许愿时间（北京时间）:', wishData.beijingTime);
+        console.log('完整数据:', wishData);
+        console.log('💡 提示: 要接收许愿内容，请在 script.js 中配置 WISH_API_URL');
+    }
+}
+
+// 完成许愿
+function completeWish(wish, wishContainer, content, modal) {
+    // 发送许愿数据到服务器
+    sendWishToServer(wish);
+    
+    // 播放许愿音效
+    playWishSound();
+    
+    // 创建愿望飞走动画
+    const wishText = document.createElement('div');
+    wishText.className = 'wish-flying';
+    wishText.textContent = wish;
+    wishText.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 36px;
+        font-weight: bold;
+        color: #ffeaa7;
+        text-shadow: 0 0 20px rgba(255, 234, 167, 0.8);
+        z-index: 15002;
+        animation: wishFlyAway 2s ease-out forwards;
+        pointer-events: none;
+    `;
+    document.body.appendChild(wishText);
+    
+    // 创建星星特效
+    for (let i = 0; i < 20; i++) {
+        setTimeout(() => {
+            createWishStar();
+        }, i * 50);
+    }
+    
+    // 移除许愿界面
+    wishContainer.style.animation = 'wishFadeOut 0.5s ease';
+    setTimeout(() => {
+        wishContainer.remove();
+        
+        // 确保吹蜡烛按钮已隐藏
+        const blowBtn = content.querySelector('#blow-candles-btn');
+        if (blowBtn) {
+            blowBtn.style.display = 'none';
+        }
+        
+        // 显示完成消息
+        const completeMsg = document.createElement('div');
+        completeMsg.className = 'wish-complete-msg';
+        completeMsg.innerHTML = `
+            <div class="complete-emoji">✨</div>
+            <div class="complete-text">愿望已许下，一定会实现的！</div>
+        `;
+        content.appendChild(completeMsg);
+        
+        // 显示关闭按钮
+        const closeBtn = content.querySelector('#close-modal-btn');
+        closeBtn.style.display = 'block';
+        
+        // 标记已许愿
+        modal.wishMade = true;
+        
+        setTimeout(() => {
+            wishText.remove();
+        }, 2000);
+    }, 500);
+}
+
+// 创建许愿星星
+function createWishStar() {
+    const star = document.createElement('div');
+    const stars = ['✨', '⭐', '💫', '🌟'];
+    star.textContent = stars[Math.floor(Math.random() * stars.length)];
+    star.style.cssText = `
+        position: fixed;
+        left: ${Math.random() * 100}%;
+        top: ${Math.random() * 100}%;
+        font-size: ${Math.random() * 20 + 20}px;
+        pointer-events: none;
+        z-index: 15001;
+        animation: wishStarTwinkle 2s ease-out forwards;
+    `;
+    document.body.appendChild(star);
+    
+    setTimeout(() => {
+        star.remove();
+    }, 2000);
+}
+
+// 播放许愿音效
+function playWishSound() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        // 许愿音效：美妙的音调
+        oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C
+        oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.15); // E
+        oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.3); // G
+        oscillator.frequency.setValueAtTime(1046.50, audioContext.currentTime + 0.45); // C高
+        
+        gainNode.gain.setValueAtTime(0.25, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.6);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.6);
+    } catch (e) {
+        console.log('音频播放不支持');
+    }
+}
+
+// 启动生日元素掉落（可点击收集）- 各种蛋糕
+function startBirthdayElements() {
+    const birthdayElements = ['🎂', '🍰', '🧁', '🍩', '🎂', '🍰', '🧁', '🍩'];
+    
+    // 每隔一段时间掉落生日元素
+    const birthdayElementInterval = setInterval(() => {
+        if (birthdayEggActive) {
+            createBirthdayElement(birthdayElements[Math.floor(Math.random() * birthdayElements.length)]);
+        } else {
+            clearInterval(birthdayElementInterval);
+        }
+    }, 2000);
+    
+    // 立即创建几个
+    for (let i = 0; i < 3; i++) {
+        setTimeout(() => {
+            createBirthdayElement(birthdayElements[Math.floor(Math.random() * birthdayElements.length)]);
+        }, i * 500);
+    }
+}
+
+// 创建可点击的生日元素
+function createBirthdayElement(emoji) {
+    const element = document.createElement('div');
+    element.className = 'birthday-element';
+    element.textContent = emoji;
+    element.style.cssText = `
+        position: fixed;
+        left: ${Math.random() * 80 + 10}%;
+        top: -100px;
+        font-size: ${Math.random() * 30 + 40}px;
+        cursor: pointer;
+        z-index: 10002;
+        animation: birthdayElementFall ${Math.random() * 2 + 4}s linear forwards;
+        pointer-events: auto;
+        filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        transition: transform 0.2s ease;
+    `;
+    
+    // 悬停效果
+    element.addEventListener('mouseenter', () => {
+        element.style.transform = 'scale(1.3) rotate(15deg)';
+    });
+    element.addEventListener('mouseleave', () => {
+        element.style.transform = 'scale(1) rotate(0deg)';
+    });
+    
+    // 点击事件 - 收集生日元素获得额外快乐值
+    element.addEventListener('click', (e) => {
+        e.stopPropagation();
+        handleBirthdayElementClick(element, emoji);
+    });
+    
+    document.body.appendChild(element);
+    
+    // 自动移除
+    setTimeout(() => {
+        if (element.parentNode) {
+            element.style.animation = 'birthdayElementDisappear 0.5s ease forwards';
+            setTimeout(() => {
+                if (element.parentNode) {
+                    element.remove();
+                }
+            }, 500);
+        }
+    }, 6000);
+}
+
+// 处理生日元素点击
+function handleBirthdayElementClick(element, emoji) {
+    // 创建收集特效
+    const effect = document.createElement('div');
+    effect.textContent = `+50 🎁`;
+    effect.style.cssText = `
+        position: fixed;
+        left: ${element.getBoundingClientRect().left}px;
+        top: ${element.getBoundingClientRect().top}px;
+        font-size: 24px;
+        font-weight: bold;
+        color: #ff6b6b;
+        pointer-events: none;
+        z-index: 20000;
+        animation: birthdayScorePop 1s ease-out forwards;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    `;
+    document.body.appendChild(effect);
+    
+    // 增加快乐值（如果游戏激活）
+    if (scoreGameActive) {
+        gameScore += 50;
+        updateScoreDisplay();
+    }
+    
+    // 创建星星爆炸特效
+    const rect = element.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    for (let i = 0; i < 8; i++) {
+        const star = document.createElement('div');
+        star.textContent = '✨';
+        const angle = (i / 8) * Math.PI * 2;
+        const distance = 60;
+        const endX = centerX + Math.cos(angle) * distance;
+        const endY = centerY + Math.sin(angle) * distance;
+        
+        star.style.cssText = `
+            position: fixed;
+            left: ${centerX}px;
+            top: ${centerY}px;
+            font-size: 20px;
+            pointer-events: none;
+            z-index: 19999;
+            transform: translate(-50%, -50%);
+        `;
+        
+        document.body.appendChild(star);
+        
+        // 使用requestAnimationFrame实现爆炸动画
+        let startTime = null;
+        const duration = 800;
+        const startX = centerX;
+        const startY = centerY;
+        const deltaX = endX - startX;
+        const deltaY = endY - startY;
+        
+        function animateStar(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const elapsed = timestamp - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            // 使用缓出函数
+            const easeOut = 1 - Math.pow(1 - progress, 3);
+            
+            const currentX = startX + deltaX * easeOut;
+            const currentY = startY + deltaY * easeOut;
+            const scale = 1 + easeOut * 0.5;
+            const rotate = progress * 360;
+            const opacity = 1 - progress;
+            
+            star.style.left = currentX + 'px';
+            star.style.top = currentY + 'px';
+            star.style.transform = `translate(-50%, -50%) scale(${scale}) rotate(${rotate}deg)`;
+            star.style.opacity = opacity;
+            
+            if (progress < 1) {
+                requestAnimationFrame(animateStar);
+            } else {
+                if (star.parentNode) {
+                    star.remove();
+                }
+            }
+        }
+        
+        requestAnimationFrame(animateStar);
+    }
+    
+    // 移除元素
+    element.style.animation = 'birthdayElementCollect 0.5s ease forwards';
+    setTimeout(() => {
+        if (element.parentNode) {
+            element.remove();
+        }
+        if (effect.parentNode) {
+            effect.remove();
+        }
+    }, 500);
+}
 
 // 设置吃零食捕获层事件
 function setupClickCaptureLayer() {
@@ -378,14 +1459,19 @@ function handleFoodClick(element, food) {
     }, 200);
 }
 
-// 获取食物分数
+// 获取食物分数（主要是各种蛋糕）
 function getFoodScore(food) {
     const scoreMap = {
-        '🍟': 10, '🍕': 15, '🍰': 20, '🍭': 8, '🍪': 12, '🍩': 18,
-        '🍫': 14, '🍬': 6, '🧁': 25, '🥨': 16, '🍯': 22, '🧀': 13,
+        '🎂': 25,  // 生日蛋糕 - 最高分
+        '🍰': 22,  // 蛋糕
+        '🧁': 20,  // 纸杯蛋糕
+        '🍩': 18,  // 甜甜圈
+        // 保留一些原有食物以防万一
+        '🍟': 10, '🍕': 15, '🍭': 8, '🍪': 12,
+        '🍫': 14, '🍬': 6, '🥨': 16, '🍯': 22, '🧀': 13,
         '🥞': 11, '🍞': 9, '🥖': 7, '🥐': 8
     };
-    return scoreMap[food] || 10;
+    return scoreMap[food] || 18; // 默认值改为蛋糕的平均分
 }
 
 // 记录食物被吃次数 - 统计每个食物被吃的次数
@@ -772,9 +1858,9 @@ function createBottomFloatingElements() {
     }
 }
 
-// 雪花式缓慢掉落
+// 雪花式缓慢掉落 - 各种蛋糕
 function createFoodRain() {
-    const foods = ['🍟', '🍕', '🍰', '🍭', '🍪', '🍩', '🍫', '🍬', '🍭', '🧁', '🥨', '🍯', '🧀', '🥞', '🍞', '🥖', '🥐'];
+    const foods = ['🎂', '🍰', '🧁', '🍩', '🎂', '🍰', '🧁', '🍩', '🎂', '🍰', '🧁', '🍩'];
     const randomFood = foods[Math.floor(Math.random() * foods.length)];
     
     const rainElement = document.createElement('div');
@@ -816,9 +1902,9 @@ function createFoodRain() {
     }, (speed + 1) * 1000);
 }
 
-// 流星式划过
+// 流星式划过 - 各种蛋糕
 function createFoodMeteor() {
-    const foods = ['🍟', '🍕', '🍰', '🍭', '🍪', '🍩', '🍫', '🍬', '🧁', '🥨', '🍯', '🧀', '🥞'];
+    const foods = ['🎂', '🍰', '🧁', '🍩', '🎂', '🍰', '🧁', '🍩', '🎂', '🍰', '🧁', '🍩'];
     const randomFood = foods[Math.floor(Math.random() * foods.length)];
     
     const meteorElement = document.createElement('div');
@@ -858,9 +1944,9 @@ function createFoodMeteor() {
     }, (speed + 1) * 1000);
 }
 
-// 食物弹跳效果
+// 食物弹跳效果 - 各种蛋糕
 function createBouncingFood() {
-    const foods = ['🍟', '🍕', '🍰', '🍭', '🍪', '🍩'];
+    const foods = ['🎂', '🍰', '🧁', '🍩', '🎂', '🍰'];
     const randomFood = foods[Math.floor(Math.random() * foods.length)];
     
     const bounceElement = document.createElement('div');
@@ -886,9 +1972,9 @@ function createBouncingFood() {
     }, 5000);
 }
 
-// 零食旋转效果
+// 零食旋转效果 - 各种蛋糕
 function createSpinningFood() {
-    const foods = ['🍟', '🍕', '🍰', '🍭', '🍪', '🍩', '🍫'];
+    const foods = ['🎂', '🍰', '🧁', '🍩', '🎂', '🍰', '🧁'];
     const randomFood = foods[Math.floor(Math.random() * foods.length)];
     
     const spinElement = document.createElement('div');
@@ -913,9 +1999,9 @@ function createSpinningFood() {
     }, 3000);
 }
 
-// 零食摇摆效果
+// 零食摇摆效果 - 各种蛋糕
 function createSwayingFood() {
-    const foods = ['🍟', '🍕', '🍰', '🍭', '🍪', '🍩'];
+    const foods = ['🎂', '🍰', '🧁', '🍩', '🎂', '🍰'];
     const randomFood = foods[Math.floor(Math.random() * foods.length)];
     
     const swayElement = document.createElement('div');

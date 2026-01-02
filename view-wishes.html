@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>查看许愿内容</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 50%, #fd79a8 100%);
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #ff6b6b;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .stat-item {
+            background: linear-gradient(135deg, #ff6b6b, #fd79a8);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 15px;
+            text-align: center;
+            min-width: 150px;
+        }
+        
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .wishes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .wish-item {
+            background: rgba(255, 234, 167, 0.3);
+            border: 2px solid rgba(255, 107, 107, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .wish-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-color: rgba(255, 107, 107, 0.5);
+        }
+        
+        .wish-content {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin-bottom: 10px;
+        }
+        
+        .wish-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .wish-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .empty-state-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        
+        .refresh-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .refresh-btn:hover {
+            transform: scale(1.1) rotate(180deg);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .stat-item {
+                min-width: 120px;
+                padding: 12px 20px;
+            }
+            
+            .wish-content {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎂 收到的许愿</h1>
+        
+        <div class="stats" id="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="total-count">0</div>
+                <div class="stat-label">总许愿数</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="today-count">0</div>
+                <div class="stat-label">今日许愿</div>
+            </div>
+        </div>
+        
+        <div class="wishes-list" id="wishes-list">
+            <div class="empty-state">
+                <div class="empty-state-icon">🎂</div>
+                <div>还没有收到许愿哦~</div>
+            </div>
+        </div>
+    </div>
+    
+    <button class="refresh-btn" onclick="loadWishes()" title="刷新">🔄</button>
+    
+    <script>
+        function loadWishes() {
+            fetch('wishes.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('无法加载许愿数据');
+                    }
+                    return response.json();
+                })
+                .then(wishes => {
+                    displayWishes(wishes);
+                })
+                .catch(error => {
+                    console.error('加载失败:', error);
+                    document.getElementById('wishes-list').innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">😔</div>
+                            <div>无法加载许愿数据</div>
+                            <div style="margin-top: 10px; font-size: 12px; color: #999;">
+                                请确保 wishes.json 文件存在且可访问
+                            </div>
+                        </div>
+                    `;
+                });
+        }
+        
+        function displayWishes(wishes) {
+            const list = document.getElementById('wishes-list');
+            const totalCount = document.getElementById('total-count');
+            const todayCount = document.getElementById('today-count');
+            
+            totalCount.textContent = wishes.length;
+            
+            // 计算今日许愿数
+            const today = new Date().toDateString();
+            const todayWishes = wishes.filter(w => {
+                const wishDate = new Date(w.timestamp || w.date).toDateString();
+                return wishDate === today;
+            });
+            todayCount.textContent = todayWishes.length;
+            
+            if (wishes.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎂</div>
+                        <div>还没有收到许愿哦~</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // 按时间倒序排列
+            wishes.sort((a, b) => {
+                const timeA = new Date(a.timestamp || a.date).getTime();
+                const timeB = new Date(b.timestamp || b.date).getTime();
+                return timeB - timeA;
+            });
+            
+            list.innerHTML = wishes.map((wish, index) => `
+                <div class="wish-item">
+                    <div class="wish-content">${escapeHtml(wish.wish)}</div>
+                    <div class="wish-meta">
+                        <div class="wish-meta-item">
+                            <span>🕐</span>
+                            <span>${wish.date || wish.timestamp}</span>
+                        </div>
+                        ${wish.language ? `
+                            <div class="wish-meta-item">
+                                <span>🌐</span>
+                                <span>${wish.language}</span>
+                            </div>
+                        ` : ''}
+                        ${wish.timezone ? `
+                            <div class="wish-meta-item">
+                                <span>🌍</span>
+                                <span>${wish.timezone}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // 页面加载时自动加载
+        loadWishes();
+        
+        // 每30秒自动刷新
+        setInterval(loadWishes, 30000);
+    </script>
+</body>
+</html>
+
