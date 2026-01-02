@@ -2337,11 +2337,32 @@ body {
     }
     
     .wish-title {
-        font-size: 28px;
+        font-size: 26px;
+        margin-bottom: 15px;
     }
     
     .wish-hint {
-        font-size: 16px;
+        font-size: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .wish-modal-content {
+        padding: 25px 20px;
+    }
+    
+    .wish-option-btn {
+        padding: 10px 16px;
+        font-size: 14px;
+    }
+    
+    .wish-input {
+        padding: 10px 15px;
+        font-size: 15px;
+    }
+    
+    .wish-submit-btn {
+        padding: 10px 20px;
+        font-size: 15px;
     }
 }
 
@@ -2461,24 +2482,41 @@ body {
     }
     
     .wish-title {
-        font-size: 24px;
+        font-size: 20px;
+        margin-bottom: 12px;
     }
     
     .wish-hint {
-        font-size: 14px;
+        font-size: 12px;
+        margin-bottom: 18px;
     }
     
     .wish-option-btn {
-        padding: 10px 15px;
-        font-size: 14px;
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+    
+    .wish-modal-content {
+        padding: 20px 15px;
+    }
+    
+    .wish-input {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+    
+    .wish-submit-btn {
+        padding: 8px 18px;
+        font-size: 13px;
     }
     
     .complete-emoji {
-        font-size: 50px;
+        font-size: 40px;
+        margin-bottom: 10px;
     }
     
     .complete-text {
-        font-size: 18px;
+        font-size: 15px;
     }
     
     .birthday-wishes {
