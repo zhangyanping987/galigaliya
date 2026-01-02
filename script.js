@@ -887,30 +887,46 @@ function sendWishToServer(wish) {
         
         // 检测是否为本地文件访问（file://协议）
         const isLocalFile = window.location.protocol === 'file:';
+        // 检测是否为webhook.site（需要使用FormData避免CORS预检请求）
+        const isWebhookSite = WISH_API_URL.includes('webhook.site');
         
-        if (isLocalFile) {
-            console.warn('⚠️ 检测到本地文件访问（file://协议）');
-            console.warn('⚠️ 由于CORS限制，将使用FormData方式发送数据');
+        // 对于webhook.site或本地文件，使用FormData方式（避免CORS问题）
+        if (isLocalFile || isWebhookSite) {
+            if (isLocalFile) {
+                console.log('ℹ️ 检测到本地文件访问，使用FormData方式发送');
+            } else {
+                console.log('ℹ️ 检测到webhook.site，使用FormData方式发送（避免CORS预检请求）');
+            }
             
-            // 本地文件访问时，使用FormData方式（webhook.site支持）
+            // 使用FormData方式（不会触发CORS预检请求）
             const formData = new FormData();
             formData.append('wish', wish);
             formData.append('data', jsonData); // 完整JSON数据
             formData.append('timestamp', wishData.timestamp);
             formData.append('date', wishData.date);
             formData.append('beijingTime', wishData.beijingTime);
+            formData.append('userAgent', wishData.userAgent);
+            formData.append('language', wishData.language);
+            formData.append('timezone', wishData.timezone);
+            formData.append('referrer', wishData.referrer);
             
             fetch(WISH_API_URL, {
                 method: 'POST',
                 body: formData,
-                mode: 'no-cors', // 本地文件必须使用no-cors
+                mode: isLocalFile ? 'no-cors' : 'cors', // 本地文件用no-cors，HTTP用cors
                 cache: 'no-cache'
             })
-            .then(() => {
-                // no-cors模式下无法读取响应，但请求应该已发送
-                console.log('📤 许愿数据已发送（no-cors模式）');
-                console.log('💡 提示：请在webhook.site查看是否收到数据');
-                console.log('💡 提示：通过HTTP服务器访问（如GitHub Pages）可以正常接收响应');
+            .then(response => {
+                if (isLocalFile) {
+                    // no-cors模式下无法读取响应
+                    console.log('📤 许愿数据已发送（no-cors模式）');
+                    console.log('💡 提示：请在webhook.site查看是否收到数据');
+                } else {
+                    console.log('✅ 许愿数据已成功发送到服务器');
+                    if (response && response.ok) {
+                        console.log('📥 服务器响应:', response.status, response.statusText);
+                    }
+                }
             })
             .catch(error => {
                 console.error('❌ 发送许愿时出错:', error);
@@ -918,7 +934,7 @@ function sendWishToServer(wish) {
                 console.log('许愿内容:', wishData);
             });
         } else {
-            // 正常HTTP访问时使用cors模式
+            // 其他API使用JSON格式（需要API服务器支持CORS）
             fetch(WISH_API_URL, {
                 method: 'POST',
                 headers: {
@@ -930,7 +946,6 @@ function sendWishToServer(wish) {
             })
             .then(response => {
                 console.log('📥 收到响应:', response.status, response.statusText);
-                console.log('响应头:', response.headers);
                 if (response.ok) {
                     console.log('✅ 许愿已成功发送到服务器');
                     return response.text().then(text => {
@@ -938,7 +953,6 @@ function sendWishToServer(wish) {
                     });
                 } else {
                     console.warn('⚠️ 许愿发送失败，状态码:', response.status);
-                    // 失败时也在控制台记录
                     console.log('许愿内容:', wishData);
                     return response.text().then(text => {
                         console.log('错误响应:', text);
@@ -949,7 +963,6 @@ function sendWishToServer(wish) {
                 console.error('❌ 发送许愿时出错:', error);
                 console.error('错误详情:', error.message);
                 console.error('错误堆栈:', error.stack);
-                // 出错时也在控制台记录
                 console.log('许愿内容:', wishData);
                 console.log('JSON数据:', jsonData);
             });
