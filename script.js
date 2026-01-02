@@ -343,70 +343,77 @@ function playHappyBirthdaySong() {
             birthdaySongAudioContext = new (window.AudioContext || window.webkitAudioContext)();
         }
         
-        // 如果音频上下文被暂停，恢复它
-        if (birthdaySongAudioContext.state === 'suspended') {
-            birthdaySongAudioContext.resume().catch(() => {
-                console.log('音频上下文恢复失败，需要用户交互');
-                return;
+        // 如果音频上下文被暂停，恢复它（必须等待恢复完成）
+        const startPlaying = () => {
+            birthdaySongPlaying = true;
+            
+            // 音符频率映射（以C4=261.63Hz为基准）
+            const notes = {
+                'C4': 261.63,
+                'D4': 293.66,
+                'E4': 329.63,
+                'F4': 349.23,
+                'G4': 392.00,
+                'A4': 440.00,
+                'A#4': 466.16,
+                'C5': 523.25
+            };
+            
+            // 生日快乐歌的旋律和节奏
+            // [音符, 持续时间(秒), 是否延长]
+            const melody = [
+                ['C4', 0.3, false], ['C4', 0.2, false], ['D4', 0.5, false], ['C4', 0.5, false], ['F4', 0.5, false], ['E4', 1.0, false],
+                ['C4', 0.3, false], ['C4', 0.2, false], ['D4', 0.5, false], ['C4', 0.5, false], ['G4', 0.5, false], ['F4', 1.0, false],
+                ['C4', 0.3, false], ['C4', 0.2, false], ['C5', 0.5, false], ['A4', 0.5, false], ['F4', 0.5, false], ['E4', 0.5, false], ['D4', 1.0, false],
+                ['A#4', 0.3, false], ['A#4', 0.2, false], ['A4', 0.5, false], ['F4', 0.5, false], ['G4', 0.5, false], ['F4', 1.5, false]
+            ];
+            
+            let currentTime = birthdaySongAudioContext.currentTime + 0.1; // 稍微延迟确保上下文已准备好
+            
+            melody.forEach(([note, duration, sustain]) => {
+                const oscillator = birthdaySongAudioContext.createOscillator();
+                const gainNode = birthdaySongAudioContext.createGain();
+                
+                oscillator.type = 'sine'; // 使用正弦波，音色更柔和
+                oscillator.frequency.setValueAtTime(notes[note], currentTime);
+                
+                gainNode.gain.setValueAtTime(0, currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.2, currentTime + 0.05); // 淡入，音量稍微调大
+                if (sustain) {
+                    gainNode.gain.setValueAtTime(0.2, currentTime + duration - 0.1);
+                }
+                gainNode.gain.linearRampToValueAtTime(0, currentTime + duration); // 淡出
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(birthdaySongAudioContext.destination);
+                
+                oscillator.start(currentTime);
+                oscillator.stop(currentTime + duration);
+                
+                currentTime += duration;
             });
-        }
-        
-        birthdaySongPlaying = true;
-        
-        // 音符频率映射（以C4=261.63Hz为基准）
-        const notes = {
-            'C4': 261.63,
-            'D4': 293.66,
-            'E4': 329.63,
-            'F4': 349.23,
-            'G4': 392.00,
-            'A4': 440.00,
-            'A#4': 466.16,
-            'C5': 523.25
+            
+            // 歌曲播放完毕后重置标志
+            setTimeout(() => {
+                birthdaySongPlaying = false;
+            }, (currentTime + 0.5) * 1000);
+            
+            console.log('🎵 生日快乐歌开始播放');
         };
         
-        // 生日快乐歌的旋律和节奏
-        // [音符, 持续时间(秒), 是否延长]
-        const melody = [
-            ['C4', 0.3, false], ['C4', 0.2, false], ['D4', 0.5, false], ['C4', 0.5, false], ['F4', 0.5, false], ['E4', 1.0, false],
-            ['C4', 0.3, false], ['C4', 0.2, false], ['D4', 0.5, false], ['C4', 0.5, false], ['G4', 0.5, false], ['F4', 1.0, false],
-            ['C4', 0.3, false], ['C4', 0.2, false], ['C5', 0.5, false], ['A4', 0.5, false], ['F4', 0.5, false], ['E4', 0.5, false], ['D4', 1.0, false],
-            ['A#4', 0.3, false], ['A#4', 0.2, false], ['A4', 0.5, false], ['F4', 0.5, false], ['G4', 0.5, false], ['F4', 1.5, false]
-        ];
-        
-        let currentTime = birthdaySongAudioContext.currentTime;
-        
-        melody.forEach(([note, duration, sustain]) => {
-            const oscillator = birthdaySongAudioContext.createOscillator();
-            const gainNode = birthdaySongAudioContext.createGain();
-            
-            oscillator.type = 'sine'; // 使用正弦波，音色更柔和
-            oscillator.frequency.setValueAtTime(notes[note], currentTime);
-            
-            gainNode.gain.setValueAtTime(0, currentTime);
-            gainNode.gain.linearRampToValueAtTime(0.15, currentTime + 0.05); // 淡入
-            if (sustain) {
-                gainNode.gain.setValueAtTime(0.15, currentTime + duration - 0.1);
-            }
-            gainNode.gain.linearRampToValueAtTime(0, currentTime + duration); // 淡出
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(birthdaySongAudioContext.destination);
-            
-            oscillator.start(currentTime);
-            oscillator.stop(currentTime + duration);
-            
-            currentTime += duration;
-        });
-        
-        // 歌曲播放完毕后重置标志
-        setTimeout(() => {
-            birthdaySongPlaying = false;
-        }, currentTime * 1000);
-        
-        console.log('🎵 生日快乐歌开始播放');
+        if (birthdaySongAudioContext.state === 'suspended') {
+            birthdaySongAudioContext.resume().then(() => {
+                console.log('✅ 音频上下文已恢复');
+                startPlaying();
+            }).catch((error) => {
+                console.error('❌ 音频上下文恢复失败:', error);
+                birthdaySongPlaying = false;
+            });
+        } else {
+            startPlaying();
+        }
     } catch (e) {
-        console.log('生日快乐歌播放失败:', e);
+        console.error('❌ 生日快乐歌播放失败:', e);
         birthdaySongPlaying = false;
     }
 }
