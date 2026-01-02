@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 初始化关心弹窗系统
     initCareSystem();
     
-    // 检查是否为生日日期（1月2日）并显示生日彩蛋
+    // 检查是否为生日日期（1月1日-1月3日）并显示生日彩蛋
     checkBirthdayEgg();
 });
 
@@ -199,8 +199,8 @@ function checkBirthdayEgg() {
     console.log('🕐 当前北京时间:', beijingTime.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }));
     console.log('📅 检查日期: 月份=' + month + ', 日期=' + date);
     
-    // 检查是否为1月2日
-    if (month === 1 && date === 2) {
+    // 检查是否为1月1日到1月3日
+    if (month === 1 && date >= 1 && date <= 3) {
         birthdayEggActive = true;
         console.log('🎉 生日彩蛋已激活！');
         // 延迟一点显示，让页面先加载
@@ -208,7 +208,7 @@ function checkBirthdayEgg() {
             showBirthdayEgg();
         }, 1500);
     } else {
-        console.log('ℹ️ 今天不是1月2日，生日彩蛋未激活');
+        console.log('ℹ️ 今天不在1月1日-1月3日期间，生日彩蛋未激活');
     }
 }
 
