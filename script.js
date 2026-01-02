@@ -234,11 +234,6 @@ function showBirthdayEgg() {
                 // 第七步：启动生日元素掉落（可点击收集）
                 startBirthdayElements();
                 
-                // 第八步：播放生日快乐歌
-                setTimeout(() => {
-                    playHappyBirthdaySong();
-                }, 1000);
-                
                 console.log('🎉 生日快乐！生日彩蛋已激活！');
             });
         });
@@ -713,6 +708,7 @@ function showBirthdayModal() {
     let candlesBlown = 0;
     const totalCandles = 3;
     let wishMade = false;
+    let songPlayed = false; // 标记是否已播放生日快乐歌
     
     // 蜡烛点燃动画
     setTimeout(() => {
@@ -733,6 +729,12 @@ function showBirthdayModal() {
     
     blowBtn.addEventListener('click', () => {
         if (candlesBlown < totalCandles) {
+            // 第一次点击时播放生日快乐歌
+            if (!songPlayed) {
+                playHappyBirthdaySong();
+                songPlayed = true;
+            }
+            
             // 播放吹气音效
             playBlowSound();
             
@@ -760,6 +762,12 @@ function showBirthdayModal() {
     candles.forEach((candle) => {
         candle.addEventListener('click', () => {
             if (!candle.classList.contains('candle-blown') && candle.classList.contains('candle-lit')) {
+                // 第一次点击时播放生日快乐歌
+                if (!songPlayed) {
+                    playHappyBirthdaySong();
+                    songPlayed = true;
+                }
+                
                 playBlowSound();
                 blowOutCandle(candle);
                 candlesBlown++;
