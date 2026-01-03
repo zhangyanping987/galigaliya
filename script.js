@@ -331,10 +331,12 @@ function playBirthdaySound(type) {
 // 播放生日快乐歌
 let birthdaySongAudioContext = null;
 let birthdaySongPlaying = false;
+let birthdaySongLooping = false; // 是否循环播放
+let birthdaySongLoopTimeout = null; // 循环播放的定时器
 
-function playHappyBirthdaySong() {
-    if (birthdaySongPlaying) {
-        return; // 如果正在播放，不重复播放
+function playHappyBirthdaySong(loop = false) {
+    if (birthdaySongPlaying && !loop) {
+        return; // 如果正在播放且不是循环模式，不重复播放
     }
     
     try {
@@ -346,6 +348,13 @@ function playHappyBirthdaySong() {
         // 如果音频上下文被暂停，恢复它（必须等待恢复完成）
         const startPlaying = () => {
             birthdaySongPlaying = true;
+            birthdaySongLooping = loop;
+            
+            // 清除之前的循环定时器
+            if (birthdaySongLoopTimeout) {
+                clearTimeout(birthdaySongLoopTimeout);
+                birthdaySongLoopTimeout = null;
+            }
             
             // 音符频率映射（以C4=261.63Hz为基准）
             const notes = {
@@ -393,12 +402,24 @@ function playHappyBirthdaySong() {
                 currentTime += duration;
             });
             
-            // 歌曲播放完毕后重置标志
-            setTimeout(() => {
-                birthdaySongPlaying = false;
-            }, (currentTime + 0.5) * 1000);
+            const songDuration = currentTime;
             
-            console.log('🎵 生日快乐歌开始播放');
+            // 如果启用循环播放，在歌曲播放完毕后重新播放
+            if (loop) {
+                birthdaySongLoopTimeout = setTimeout(() => {
+                    if (birthdaySongLooping) {
+                        birthdaySongPlaying = false; // 重置标志以便重新播放
+                        playHappyBirthdaySong(true); // 循环播放
+                    }
+                }, songDuration * 1000);
+                console.log('🎵 生日快乐歌开始循环播放');
+            } else {
+                // 歌曲播放完毕后重置标志
+                setTimeout(() => {
+                    birthdaySongPlaying = false;
+                }, (songDuration + 0.5) * 1000);
+                console.log('🎵 生日快乐歌开始播放');
+            }
         };
         
         if (birthdaySongAudioContext.state === 'suspended') {
@@ -408,6 +429,7 @@ function playHappyBirthdaySong() {
             }).catch((error) => {
                 console.error('❌ 音频上下文恢复失败:', error);
                 birthdaySongPlaying = false;
+                birthdaySongLooping = false;
             });
         } else {
             startPlaying();
@@ -415,6 +437,16 @@ function playHappyBirthdaySong() {
     } catch (e) {
         console.error('❌ 生日快乐歌播放失败:', e);
         birthdaySongPlaying = false;
+        birthdaySongLooping = false;
+    }
+}
+
+// 停止循环播放生日快乐歌
+function stopBirthdaySongLoop() {
+    birthdaySongLooping = false;
+    if (birthdaySongLoopTimeout) {
+        clearTimeout(birthdaySongLoopTimeout);
+        birthdaySongLoopTimeout = null;
     }
 }
 
@@ -527,6 +559,9 @@ function showBirthdayTitle(callback) {
     titleContainer.appendChild(bigCake);
     titleContainer.appendChild(titleText);
     document.body.appendChild(titleContainer);
+    
+    // 播放庆祝音效
+    playBirthdaySound('celebration');
     
     // 蜡烛依次点亮
     setTimeout(() => {
@@ -736,9 +771,9 @@ function showBirthdayModal() {
     
     blowBtn.addEventListener('click', () => {
         if (candlesBlown < totalCandles) {
-            // 第一次点击时播放生日快乐歌
+            // 第一次点击时开始循环播放生日快乐歌
             if (!songPlayed) {
-                playHappyBirthdaySong();
+                playHappyBirthdaySong(true); // 传入true启用循环播放
                 songPlayed = true;
             }
             
@@ -769,9 +804,9 @@ function showBirthdayModal() {
     candles.forEach((candle) => {
         candle.addEventListener('click', () => {
             if (!candle.classList.contains('candle-blown') && candle.classList.contains('candle-lit')) {
-                // 第一次点击时播放生日快乐歌
+                // 第一次点击时开始循环播放生日快乐歌
                 if (!songPlayed) {
-                    playHappyBirthdaySong();
+                    playHappyBirthdaySong(true); // 传入true启用循环播放
                     songPlayed = true;
                 }
                 
