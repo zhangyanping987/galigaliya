@@ -308,7 +308,7 @@ function playBirthdaySound(type) {
             // 倒计时音效：短促的提示音
             oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
             oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.1);
-            gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
             oscillator.start(audioContext.currentTime);
             oscillator.stop(audioContext.currentTime + 0.2);
@@ -317,7 +317,7 @@ function playBirthdaySound(type) {
             oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C
             oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E
             oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G
-            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
             oscillator.start(audioContext.currentTime);
             oscillator.stop(audioContext.currentTime + 0.4);
@@ -387,9 +387,9 @@ function playHappyBirthdaySong(loop = false) {
                 oscillator.frequency.setValueAtTime(notes[note], currentTime);
                 
                 gainNode.gain.setValueAtTime(0, currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.2, currentTime + 0.05); // 淡入，音量稍微调大
+                gainNode.gain.linearRampToValueAtTime(0.5, currentTime + 0.05); // 淡入，音量调大
                 if (sustain) {
-                    gainNode.gain.setValueAtTime(0.2, currentTime + duration - 0.1);
+                    gainNode.gain.setValueAtTime(0.5, currentTime + duration - 0.1);
                 }
                 gainNode.gain.linearRampToValueAtTime(0, currentTime + duration); // 淡出
                 
@@ -897,7 +897,7 @@ function playBlowSound() {
         oscillator.frequency.setValueAtTime(150, audioContext.currentTime);
         oscillator.frequency.exponentialRampToValueAtTime(80, audioContext.currentTime + 0.3);
         
-        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+        gainNode.gain.setValueAtTime(0.4, audioContext.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
         
         oscillator.start(audioContext.currentTime);
@@ -1214,7 +1214,7 @@ function playWishSound() {
         oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.3); // G
         oscillator.frequency.setValueAtTime(1046.50, audioContext.currentTime + 0.45); // C高
         
-        gainNode.gain.setValueAtTime(0.25, audioContext.currentTime);
+        gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.6);
         
         oscillator.start(audioContext.currentTime);
